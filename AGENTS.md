@@ -9,8 +9,9 @@
 ## 已确认的工程方向
 
 - 目标为 Pollen Robotics MicroDuck；资产来源与版本见 `docs/microduck_asset_manifest.json`。
-- 自研物理仿真求解器，接入 rsl-rl；支持 CPU/CUDA。优先考虑多厂商 GPU，遇到实际不可行条件时先落地 CUDA。
-- Kokkos 是待验证的首选技术建议，其官方后端支持不代表本项目已完成适配。
+- 自研物理仿真求解器，接入 rsl-rl；明确采用原生 C++/CUDA，同时支持完整 CPU 求解。
+- 多厂商 GPU 与 Kokkos 暂不作为当前实施目标；此条替代此前多厂商优先建议。
+- articulation 数学建议见 `docs/ARTICULATION_SOLVER.md`，仍属待验证建议，不是用户已确认算法。
 - 使用 Git 管理代码、配置与文档；外部资产保留来源、版本与许可信息。
 - 仿真与训练在 SSH 远端运行，优先 `gpu`，连接不可用时回退 `delltower`，详见 `docs/REMOTE_EXECUTION.md`。
 - Mac 负责编辑和可视化；本机 Apple GPU 不能作为 CUDA 设备使用。

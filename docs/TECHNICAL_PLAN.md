@@ -2,34 +2,22 @@
 
 更新日期：2026-09-09。状态：工程建议，尚未实施或通过可行性验证。
 
-## 1. 多厂商 GPU 路线
+## 1. 原生 CPU/CUDA 路线（已确认）
 
-推荐先验证 **C++ + Kokkos**：统一物理算法与数据结构，按目标设备编译后端。
+用户最新明确采用 CUDA，同时支持 CPU 求解。此前 Kokkos/多厂商优先建议已撤回当前实施计划；这是需求调整，不是性能测试结论。
 
-| 路线 | 能解决的问题 | 本项目的取舍 |
-| --- | --- | --- |
-| Kokkos | C++ 并行执行与内存抽象，提供 Serial/OpenMP、CUDA、HIP、SYCL 等后端 | 首选验证对象，共享 CPU/GPU 求解器代码 |
-| SYCL / AdaptiveCpp | 跨设备 C++ 编程与编译方案 | 候选；需验证编译器、驱动与张量互操作 |
-| 原生 C++/CUDA，后续 HIP 移植 | 先完成 NVIDIA，再移植到 AMD | 回退路线；CPU 路径仍需实现，移植需要人工适配 |
+- CPU 使用原生 C++，CUDA 使用原生 CUDA C++；两者完整支持仿真求解，不把 CPU 缩减为数据准备或仅查看模型。
+- 建议共享空间代数、关节定义、接触模型、积分规则与误差指标，分别优化 CPU 循环和 CUDA 批量执行。
+- CPU FP64 作为数值参考；CPU/CUDA 同精度对照用于分离后端差异与精度差异。
+- 先核实远端 CUDA Toolkit 与编译器。本次记录中非交互 SSH 的 PATH 未找到 `nvcc`，其他安装位置尚未调查。
+- 分别验证 CPU/CUDA 构建运行及 PyTorch 缓冲区互操作、生命周期和 stream/event 同步。
+- 不预先保证速度或逐位一致；基准需包含接触求解、重置及训练数据交互。
 
-依据：[Kokkos 执行空间](https://kokkos.org/kokkos-core-wiki/API/core/execution_spaces.html)、[Khronos SYCL](https://www.khronos.org/sycl/)、[AdaptiveCpp](https://github.com/AdaptiveCpp/AdaptiveCpp)、[AMD HIP](https://rocm.docs.amd.com/projects/HIP/en/latest/what_is_hip.html)。核对日期均为 2026-09-09。
-
-推荐映射为 CPU → Serial/OpenMP，NVIDIA → CUDA，AMD → HIP，Intel → SYCL。具体设备和工具链须符合所选版本支持条件。代码可移植不代表单个二进制通吃设备，也不保证性能一致。
-
-Apple GPU 加速不纳入当前承诺；Mac 用于编辑与浏览器显示。CPU/CUDA 运行验收首先在远端完成。AMD/Intel 在没有对应硬件实测前标记为“计划支持”。
-
-### 可行性验证
-
-1. 检查远端编译器、CUDA Toolkit 和 PyTorch，再锁定 Kokkos 版本。当前非交互 SSH 的 PATH 未找到 `nvcc`，不能仅凭驱动判定已有 CUDA 编译环境。
-2. 用同一数学算子完成远端 CPU/CUDA 构建、执行和数值对照，先规定容差。
-3. 验证与 PyTorch 同设备缓冲区共享、所有权和 stream/event 同步，避免每个环境步搬运整批状态回 CPU。
-4. 用代表性小矩阵、归约和接触处理原型测量开销，不预先承诺环境数量或训练速度。
-
-可修复的工具链问题先修复；若核心互操作或性能条件仍不满足要求，记录证据并回退原生 C++/CUDA。版本条件参考：[Kokkos Requirements](https://kokkos.org/kokkos-core-wiki/get-started/requirements.html)。
+Articulation 推荐见 [数学方案](ARTICULATION_SOLVER.md)：约化坐标、Featherstone 空间代数、CRBA/RNEA、小矩阵分解；接触采用速度层柔性约束的 Newton 求解候选。此算法选择仍是建议。
 
 ## 2. 自研引擎职责
 
-建议由本项目实现动力学、碰撞与接触求解、关节约束、积分、控制和批量环境。Kokkos 是并行编程工具，rsl-rl 是学习库；Python 可以用于配置、资产转换与训练入口。
+建议由本项目实现动力学、碰撞与接触求解、关节约束、积分、控制和批量环境。rsl-rl 是学习库；Python 可以用于配置、资产转换与训练入口。
 
 初始范围建议聚焦 MicroDuck、平地与刚体接触。通用 MJCF、任意机器人、复杂地形和实机部署另行确定。资产导入应明确支持的 MJCF 子集，对不支持的语义显式报错。
 
@@ -37,7 +25,7 @@ Apple GPU 加速不纳入当前承诺；Mac 用于编辑与浏览器显示。CPU
 flowchart LR
     A[官方 MJCF / 网格 / 材质] --> B[资产导入与统一机器人模型]
     B --> C[自研动力学与接触求解器]
-    C --> D[CPU / CUDA 后端；HIP / SYCL 待验证]
+    C --> D[原生 CPU / CUDA 后端]
     D <--> E[批量任务环境与张量接口]
     E <--> F[PyTorch / rsl-rl]
     B --> G[完整外观资产]
@@ -52,7 +40,7 @@ MuJoCo 可作为资产解释或数值对照工具的候选，是否引入该开�
 - 锁定版本后以实际环境接口为准，定义 reset/step、观测、奖励、终止与超时信息。
 - 明确批维、dtype、设备、关节顺序、单位、坐标系、四元数顺序和控制周期，不直接以官网电机数推导动作维度。
 - 仿真与策略尽量位于同一 GPU，通过兼容的张量接口共享缓冲区，并验证生命周期和异步同步。
-- CUDA 成功仅证明 CUDA 路径；AMD/Intel 仍需分别验证 PyTorch、rsl-rl 与物理后端的组合。
+- CPU/CUDA 分别验证完整环境、求解器与 PyTorch/rsl-rl 的组合，不能用一条路径代替另一条的验收。
 - 短训练检查 NaN、重置、终止/超时、模型保存加载与确定条件下的回放。
 
 框架来源：[RSL-RL](https://github.com/leggedrobotics/rsl_rl)。这些是设计和验证要求，当前没有接口实现。
