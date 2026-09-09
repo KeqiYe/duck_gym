@@ -1,0 +1,276 @@
+{
+  "schema_version": 1,
+  "checked_at": "2026-09-09",
+  "repository": "https://github.com/pollen-robotics/microduck_rl",
+  "commit": "1e79c29c97d8b38aee9eefde77a545860ba7658e",
+  "root_tree_sha": "16aebdaba52b21fbdc16a2ca4b2053da0eb43ce6",
+  "status": "Metadata and XML inspected; mesh files not downloaded; rendering not verified.",
+  "upstream_license_summary": {
+    "software": "Apache-2.0",
+    "models": "Creative Commons BY-SA-NC (README wording; confirm exact asset license on import)",
+    "source": "https://github.com/pollen-robotics/microduck_rl#license"
+  },
+  "model": {
+    "path": "src/mjlab_microduck/robot/microduck/robot_allcollisions.xml",
+    "source_url": "https://github.com/pollen-robotics/microduck_rl/blob/1e79c29c97d8b38aee9eefde77a545860ba7658e/src/mjlab_microduck/robot/microduck/robot_allcollisions.xml",
+    "git_blob_sha": "7f296e3f85de71541cd5f5e3bda46ab2b463d547",
+    "sha256": "7a6fdf437f5a80c7348ad801f43f906b997a834389cb70cca5e1e8517ba38044",
+    "size_bytes": 32898,
+    "compiler": {
+      "angle": "radian",
+      "meshdir": "assets",
+      "autolimits": "true"
+    },
+    "mesh_count": 38,
+    "material_count": 38,
+    "joint_names": [
+      "left_hip_yaw",
+      "left_hip_roll",
+      "left_hip_pitch",
+      "left_knee",
+      "left_ankle",
+      "neck_pitch",
+      "head_pitch",
+      "head_yaw",
+      "head_roll",
+      "right_hip_yaw",
+      "right_hip_roll",
+      "right_hip_pitch",
+      "right_knee",
+      "right_ankle"
+    ],
+    "freejoint_count": 1,
+    "actuator_count": 14
+  },
+  "referenced_mesh_size_bytes": 21590692,
+  "meshes": [
+    {
+      "name": null,
+      "path": "src/mjlab_microduck/robot/microduck/assets/seeed_bearing__configuration__22x16x4.stl",
+      "git_blob_sha": "56ab78aca4c937d65ce3effb9b6b71b6581b1671",
+      "size_bytes": 1048584
+    },
+    {
+      "name": null,
+      "path": "src/mjlab_microduck/robot/microduck/assets/sole_left.stl",
+      "git_blob_sha": "1fe55aac746723d2f2181d5f7aaa5aa1bfedcb73",
+      "size_bytes": 789484
+    },
+    {
+      "name": null,
+      "path": "src/mjlab_microduck/robot/microduck/assets/yaw2roll.stl",
+      "git_blob_sha": "4354d0ccc1acafe547b4fb9df34a8b612252521a",
+      "size_bytes": 620284
+    },
+    {
+      "name": null,
+      "path": "src/mjlab_microduck/robot/microduck/assets/sole_right.stl",
+      "git_blob_sha": "7d22f5cddcb7af58dff8f6deb356279e00b68485",
+      "size_bytes": 794484
+    },
+    {
+      "name": null,
+      "path": "src/mjlab_microduck/robot/microduck/assets/leg.stl",
+      "git_blob_sha": "cc46130821755719727a27ebaea4e319b8303e01",
+      "size_bytes": 738884
+    },
+    {
+      "name": null,
+      "path": "src/mjlab_microduck/robot/microduck/assets/xl330.stl",
+      "git_blob_sha": "0ea8d4fa34037b0987a64a22a104bea0ff80a8b6",
+      "size_bytes": 206384
+    },
+    {
+      "name": null,
+      "path": "src/mjlab_microduck/robot/microduck/assets/noenoeil.stl",
+      "git_blob_sha": "40ef4d074244dd8e1eef792a76c075f6b4f725fc",
+      "size_bytes": 49284
+    },
+    {
+      "name": null,
+      "path": "src/mjlab_microduck/robot/microduck/assets/pcb__raspberry_pi_zero_2_w.stl",
+      "git_blob_sha": "83ad4e5343ac9ac4010f68634cca270b0247f86f",
+      "size_bytes": 1048584
+    },
+    {
+      "name": null,
+      "path": "src/mjlab_microduck/robot/microduck/assets/neck_pitch.stl",
+      "git_blob_sha": "1fd0ce0ec7e31e3f6cde20edf08f90a78554b8a9",
+      "size_bytes": 356084
+    },
+    {
+      "name": null,
+      "path": "src/mjlab_microduck/robot/microduck/assets/foot_left.stl",
+      "git_blob_sha": "43155ba3d9b1e40f6d8e6a4df7d30157ff202f75",
+      "size_bytes": 996184
+    },
+    {
+      "name": null,
+      "path": "src/mjlab_microduck/robot/microduck/assets/ankle_left.stl",
+      "git_blob_sha": "712488c2707191e5b0a35551eae10bc04c2e06df",
+      "size_bytes": 248984
+    },
+    {
+      "name": null,
+      "path": "src/mjlab_microduck/robot/microduck/assets/yaw_roll_motion.stl",
+      "git_blob_sha": "a69ce50c08ff5139171bddd80f6994b89d42cf66",
+      "size_bytes": 290784
+    },
+    {
+      "name": null,
+      "path": "src/mjlab_microduck/robot/microduck/assets/left_shell.stl",
+      "git_blob_sha": "9cb1656883bf27581c93479865a57d2be4956982",
+      "size_bytes": 1048584
+    },
+    {
+      "name": null,
+      "path": "src/mjlab_microduck/robot/microduck/assets/m12_lens_holder.stl",
+      "git_blob_sha": "23a01435a6bbd30ce4dd9d31a39402df4829d538",
+      "size_bytes": 549684
+    },
+    {
+      "name": null,
+      "path": "src/mjlab_microduck/robot/microduck/assets/jaw_soft.stl",
+      "git_blob_sha": "3c8bb13ec4028a479378d8cf0bfd6c5e5283655d",
+      "size_bytes": 336384
+    },
+    {
+      "name": null,
+      "path": "src/mjlab_microduck/robot/microduck/assets/elec_rpi_robot_hat_pcb.stl",
+      "git_blob_sha": "09048bcf69bac09c72fb834b45161b9aaf2ec21f",
+      "size_bytes": 942884
+    },
+    {
+      "name": null,
+      "path": "src/mjlab_microduck/robot/microduck/assets/top_head_shell.stl",
+      "git_blob_sha": "f446053309fc01ca0ddf866091995c173d9e1814",
+      "size_bytes": 806084
+    },
+    {
+      "name": null,
+      "path": "src/mjlab_microduck/robot/microduck/assets/lens.stl",
+      "git_blob_sha": "beff90540f3bebf4c43dfdfec8dba373e335e5ca",
+      "size_bytes": 93684
+    },
+    {
+      "name": null,
+      "path": "src/mjlab_microduck/robot/microduck/assets/bottom_head_shell.stl",
+      "git_blob_sha": "643f11092df7f9f7c55e55c9c3e71d4e4c6cb27f",
+      "size_bytes": 1048584
+    },
+    {
+      "name": null,
+      "path": "src/mjlab_microduck/robot/microduck/assets/motor_support.stl",
+      "git_blob_sha": "810f089cf1ba3322678123a86dd648de83fd06b8",
+      "size_bytes": 180884
+    },
+    {
+      "name": null,
+      "path": "src/mjlab_microduck/robot/microduck/assets/neck.stl",
+      "git_blob_sha": "ce34b0be3d7712548200dcf12111f709fd499aff",
+      "size_bytes": 73484
+    },
+    {
+      "name": null,
+      "path": "src/mjlab_microduck/robot/microduck/assets/np_f970.stl",
+      "git_blob_sha": "1ba95ee33747dc61cfcc17e54f8dc776cc342a1b",
+      "size_bytes": 1048584
+    },
+    {
+      "name": null,
+      "path": "src/mjlab_microduck/robot/microduck/assets/upper_leg_rigidity_plate.stl",
+      "git_blob_sha": "8b00e8ed3e2c62909ca8c0dab30252e22e90179c",
+      "size_bytes": 180084
+    },
+    {
+      "name": null,
+      "path": "src/mjlab_microduck/robot/microduck/assets/seeed_bearing__configuration_default.stl",
+      "git_blob_sha": "4baeca23b342d5355fa43186f36ddba1be7ad597",
+      "size_bytes": 1048584
+    },
+    {
+      "name": null,
+      "path": "src/mjlab_microduck/robot/microduck/assets/soft_mouth_top.stl",
+      "git_blob_sha": "43e95157dc9527478d9ad5bea4571bdce18e4a8b",
+      "size_bytes": 393584
+    },
+    {
+      "name": null,
+      "path": "src/mjlab_microduck/robot/microduck/assets/trunk_base.stl",
+      "git_blob_sha": "1fc5ea02be9583d292fc8c661095c9c76abbef87",
+      "size_bytes": 184984
+    },
+    {
+      "name": null,
+      "path": "src/mjlab_microduck/robot/microduck/assets/hip_l.stl",
+      "git_blob_sha": "516223995f17415282cade51e3383d058dc7fc8d",
+      "size_bytes": 1048584
+    },
+    {
+      "name": null,
+      "path": "src/mjlab_microduck/robot/microduck/assets/bearing_roll.stl",
+      "git_blob_sha": "a814312ea6b0921ab28e97238f1c7bee6cb646be",
+      "size_bytes": 121084
+    },
+    {
+      "name": null,
+      "path": "src/mjlab_microduck/robot/microduck/assets/banana_pcb_locker.stl",
+      "git_blob_sha": "b7b521560dd5c345fdae427e61dfb71158c1aa87",
+      "size_bytes": 69484
+    },
+    {
+      "name": null,
+      "path": "src/mjlab_microduck/robot/microduck/assets/speaker.stl",
+      "git_blob_sha": "1f4de82900f5a13ef397d39a61b0b8985fb5c956",
+      "size_bytes": 684
+    },
+    {
+      "name": null,
+      "path": "src/mjlab_microduck/robot/microduck/assets/ankle_right.stl",
+      "git_blob_sha": "e60bbf205af71d224bcb89cefc3646117238c51f",
+      "size_bytes": 248884
+    },
+    {
+      "name": null,
+      "path": "src/mjlab_microduck/robot/microduck/assets/upper_leg_right.stl",
+      "git_blob_sha": "8427f7e7ac30e0f93d226ef5f87766e66eb6f868",
+      "size_bytes": 612584
+    },
+    {
+      "name": null,
+      "path": "src/mjlab_microduck/robot/microduck/assets/right_shell.stl",
+      "git_blob_sha": "5879c3c7253fb9b2814227697ce6eb775d38df5a",
+      "size_bytes": 1048584
+    },
+    {
+      "name": null,
+      "path": "src/mjlab_microduck/robot/microduck/assets/face_part.stl",
+      "git_blob_sha": "0a27859ff2337baf9131c71f302667d8f6195da1",
+      "size_bytes": 570684
+    },
+    {
+      "name": null,
+      "path": "src/mjlab_microduck/robot/microduck/assets/foot_right.stl",
+      "git_blob_sha": "6971bbccdcfe1bf088f8ac618e772144d3a444fd",
+      "size_bytes": 995784
+    },
+    {
+      "name": null,
+      "path": "src/mjlab_microduck/robot/microduck/assets/power_support.stl",
+      "git_blob_sha": "981bd2088b381691ac1b004c7b664d2af410ca63",
+      "size_bytes": 641684
+    },
+    {
+      "name": null,
+      "path": "src/mjlab_microduck/robot/microduck/assets/upper_leg_left.stl",
+      "git_blob_sha": "b02cccbc748e925bbb33a98f9dfce7346581e730",
+      "size_bytes": 612584
+    },
+    {
+      "name": null,
+      "path": "src/mjlab_microduck/robot/microduck/assets/jaw.stl",
+      "git_blob_sha": "d7b0e12b5aae0b482a0bf7ca36e97f93f435637d",
+      "size_bytes": 495984
+    }
+  ]
+}
