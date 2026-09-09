@@ -123,6 +123,22 @@ void Solver::load(const std::string &path) {
       throw std::runtime_error("Invalid collision shape");
     for (int k = 0; k < n; ++k)
       s.vertices.push_back(readV(in));
+    if (s.type == 1) {
+      for (int i = 0; i < 8; ++i)
+        s.localPoints.push_back(s.center +
+                                rotate(s.q, {(i & 1 ? 1 : -1) * s.size.x,
+                                             (i & 2 ? 1 : -1) * s.size.y,
+                                             (i & 4 ? 1 : -1) * s.size.z}));
+    } else if (s.type == 3) {
+      for (auto v : s.vertices)
+        s.localPoints.push_back(s.center + rotate(s.q, v));
+    }
+    for (auto p : s.localPoints)
+      s.boundingRadius = std::max(s.boundingRadius, norm(p));
+    if (s.type == 0)
+      s.boundingRadius = norm(s.center) + s.size.x;
+    if (s.type == 2)
+      s.boundingRadius = norm(s.center) + s.size.x + s.size.y;
   }
   if (!in)
     throw std::runtime_error("Truncated model");
@@ -187,23 +203,24 @@ void Solver::detectContacts() {
     auto &b = bodies[s.body];
     if (b.mass == 0)
       continue;
-    std::vector<Vec3> points;
+    // Conservative bound for both present and linearized predicted vertices.
+    double low =
+        std::min(b.x.z, b.x.z + options.dt * b.v.z +
+                            options.dt * options.dt *
+                                (options.gravity.z + b.force.z / b.mass));
+    if (low - s.boundingRadius * (1 + options.dt * norm(b.w)) >= 0.003)
+      continue;
+    std::vector<Vec3> dynamicPoints;
+    const std::vector<Vec3> &points =
+        (s.type == 1 || s.type == 3) ? s.localPoints : dynamicPoints;
     if (s.type == 0) {
       Vec3 down = rotate(conjugate(b.q), {0, 0, -s.size.x});
-      points.push_back(s.center + down);
-    } else if (s.type == 1) {
-      for (int i = 0; i < 8; ++i)
-        points.push_back(s.center + rotate(s.q, {(i & 1 ? 1 : -1) * s.size.x,
-                                                 (i & 2 ? 1 : -1) * s.size.y,
-                                                 (i & 4 ? 1 : -1) * s.size.z}));
+      dynamicPoints.push_back(s.center + down);
     } else if (s.type == 2) {
       Vec3 down = rotate(conjugate(b.q), {0, 0, -s.size.x});
       for (int i = 0; i < 2; ++i)
-        points.push_back(s.center +
-                         rotate(s.q, {0, 0, (i ? 1 : -1) * s.size.y}) + down);
-    } else {
-      for (auto v : s.vertices)
-        points.push_back(s.center + rotate(s.q, v));
+        dynamicPoints.push_back(
+            s.center + rotate(s.q, {0, 0, (i ? 1 : -1) * s.size.y}) + down);
     }
     std::vector<std::pair<double, int>> candidates;
     for (int k = 0; k < (int)points.size(); ++k) {
@@ -211,7 +228,8 @@ void Solver::detectContacts() {
       Vec3 velocity = b.v + cross(b.w, world - b.x);
       double z =
           std::min(world.z, world.z + options.dt * velocity.z +
-                                options.dt * options.dt * options.gravity.z);
+                                options.dt * options.dt *
+                                    (options.gravity.z + b.force.z / b.mass));
       if (z < 0.003)
         candidates.push_back({z, k});
     }
@@ -305,7 +323,7 @@ void Solver::step() {
     b.q0 = b.q;
     if (b.mass == 0)
       continue;
-    b.xp = b.x + h * b.v + h * h * options.gravity;
+    b.xp = b.x + h * b.v + h * h * (options.gravity + b.force / b.mass);
     Vec3 wp =
         b.w + h * inertia(b, torques[i] - cross(b.w, inertia(b, b.w)), true);
     b.qp = exp(h * wp) * b.q;

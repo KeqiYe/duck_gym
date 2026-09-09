@@ -1,0 +1,8 @@
+-r requirements.txt
+pybind11==3.0.1
+torch==2.8.0
+torchvision==0.23.0
+rsl-rl-lib==2.3.3
+tensorboard==2.20.0
+imageio==2.37.0
+imageio-ffmpeg==0.6.0

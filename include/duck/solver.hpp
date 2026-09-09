@@ -6,7 +6,7 @@ namespace duck {
 struct Body {
   std::string name;
   double mass = 0;
-  Vec3 inertia{}, x{}, v{}, w{}, x0{}, xp{};
+  Vec3 inertia{}, x{}, v{}, w{}, x0{}, xp{}, force{};
   Quat q{}, q0{}, qp{};
 };
 struct Joint {
@@ -26,7 +26,8 @@ struct Shape {
   Quat q{};
   int type = 0;
   double friction = 0.8;
-  std::vector<Vec3> vertices;
+  std::vector<Vec3> vertices, localPoints;
+  double boundingRadius = 0;
 };
 struct Contact {
   int body = 0, shape = 0, feature = 0;
