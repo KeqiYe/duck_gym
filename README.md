@@ -2,9 +2,10 @@
 
 面向 [Pollen Robotics MicroDuck](https://pollen-robotics.com/microduck/) 的自研机器人仿真与强化学习训练引擎，接入 **rsl-rl**。
 
-项目当前处于工作上下文建立阶段，尚未实现训练功能。
+项目背景和技术主线已建立，开发进度见开发路径文档。
 
-- [工作上下文](docs/PROJECT_CONTEXT.md)：目标、当前路线、待定问题和决策记录。
+- [项目背景](docs/PROJECT_CONTEXT.md)：总体目标、核心方向和长期运行约定。
+- [开发路径](docs/DEVELOPMENT_ROADMAP.md)：阶段顺序、当前进度、待办与验收要求。
 - [技术路线](docs/TECHNICAL_PLAN.md)：原生 CPU/CUDA 后端、训练接口与完整可视化。
 - [运行约定](docs/REMOTE_EXECUTION.md)：CPU 可在 Mac 本地；GPU 优先 `master172`、回退 `delltower`，先同步再远端编译运行。
 - [资产清单](docs/microduck_asset_manifest.json)：已核查的上游版本与网格引用；网格尚未导入。
