@@ -11,7 +11,8 @@
 - 目标为 Pollen Robotics MicroDuck；资产来源与版本见 `docs/microduck_asset_manifest.json`。
 - 自研物理仿真求解器，接入 rsl-rl；明确采用原生 C++/CUDA，同时支持完整 CPU 求解。
 - 多厂商 GPU 与 Kokkos 暂不作为当前实施目标；此条替代此前多厂商优先建议。
-- articulation 数学建议见 `docs/ARTICULATION_SOLVER.md`，仍属待验证建议，不是用户已确认算法。
+- 物理求解主线采用刚体 AVBD：最大坐标、每刚体六维局部块、增广拉格朗日关节约束，以及接触与摩擦的统一迭代；详见 `docs/ARTICULATION_SOLVER.md`。
+- AVBD 的路线已确认，具体离散参数、收敛阈值和实现细节仍须推导与验证。CRBA/ABA/SAP 不作为首版必需依赖。
 - 使用 Git 管理代码、配置与文档；外部资产保留来源、版本与许可信息。
 - 仿真与训练在 SSH 远端运行，优先 `gpu`，连接不可用时回退 `delltower`，详见 `docs/REMOTE_EXECUTION.md`。
 - Mac 负责编辑和可视化；本机 Apple GPU 不能作为 CUDA 设备使用。

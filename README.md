@@ -12,6 +12,6 @@
 
 已确定采用原生 **C++/CUDA**，同时提供完整 **CPU 求解**；使用 Git 管理，完整显示 MicroDuck 外观。多厂商 GPU 暂缓。
 
-[Articulation 数学建议](docs/ARTICULATION_SOLVER.md)：约化坐标、Featherstone 空间代数、CRBA/RNEA、小型矩阵分解和柔性接触；尚未实施或定案。
+[Articulation 技术路线](docs/ARTICULATION_SOLVER.md)：已选定 **刚体 AVBD**，采用最大坐标、六维刚体块、增广拉格朗日关节约束及接触/摩擦求解，同时实现 CPU/CUDA 后端。路线已确认，求解器尚未实现。
 
 本机为 Apple Silicon Mac，负责编辑与可视化；仿真和训练运行在 SSH 远端。目前 `delltower` 可达并配备 RTX 4090，`gpu` 不可达。首个训练行为尚待确定。
