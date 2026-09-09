@@ -14,8 +14,10 @@
 - 物理求解主线采用刚体 AVBD：最大坐标、每刚体六维局部块、增广拉格朗日关节约束，以及接触与摩擦的统一迭代；详见 `docs/ARTICULATION_SOLVER.md`。
 - AVBD 的路线已确认，具体离散参数、收敛阈值和实现细节仍须推导与验证。CRBA/ABA/SAP 不作为首版必需依赖。
 - 使用 Git 管理代码、配置与文档；外部资产保留来源、版本与许可信息。
-- 仿真与训练在 SSH 远端运行，优先 `gpu`，连接不可用时回退 `delltower`，详见 `docs/REMOTE_EXECUTION.md`。
-- Mac 负责编辑和可视化；本机 Apple GPU 不能作为 CUDA 设备使用。
+- 纯 CPU 代码可以在 Mac 本地编译运行，包括 CPU 求解、测试和本地渲染测试；本机 Apple GPU 不能作为 CUDA 设备使用。
+- GPU/CUDA 代码在远端运行，优先 `master172`（工作根目录 `/public/yekq6Data/codex`），连接不可用时回退 `delltower`（`/home/yekeqi/Documents/HDD1/codex`）。
+- 每次远端运行前，先用 `scp` 或 `rsync` 把本次代码、配置及所需资产同步到所选主机的项目工作目录，核对完成后再在远端编译运行；不能直接运行陈旧副本或复用 Mac 二进制。
+- 源码副本、编译目录和模拟结果均放在上述工作根目录下的 `duck_gym/` 内，分别使用 `source/`、`build/`、`runs/`；完整约定见 `docs/REMOTE_EXECUTION.md`。
 - 完整保留 MicroDuck 外观，分别处理渲染网格与碰撞几何。验收要求见 `docs/TECHNICAL_PLAN.md`。
 
 ## 维护上下文

@@ -6,7 +6,8 @@
 
 用户最新明确采用 CUDA，同时支持 CPU 求解。此前 Kokkos/多厂商优先建议已撤回当前实施计划；这是需求调整，不是性能测试结论。
 
-- CPU 使用原生 C++，CUDA 使用原生 CUDA C++；两者完整支持仿真求解，不把 CPU 缩减为数据准备或仅查看模型。
+- CPU 使用原生 C++，CUDA 使用原生 CUDA C++；两者完整支持仿真求解，不把 CPU 缩减为数据准备或仅查看模型。纯 CPU 代码、CPU 求解与渲染测试可在 Mac 本地编译运行。
+- GPU 代码优先在 `master172:/public/yekq6Data/codex`、连接不可用时在 `delltower:/home/yekeqi/Documents/HDD1/codex` 运行；每次先 scp/rsync 同步至项目工作目录，再远端编译运行。源码副本、构建与结果布局见 [运行约定](REMOTE_EXECUTION.md)。
 - 共享刚体 AVBD 的数学定义、六维局部块、关节与接触模型、乘子更新、积分规则和误差指标，分别优化 CPU 循环和 CUDA 批量执行。
 - CPU FP64 作为数值参考；CPU/CUDA 同精度对照用于分离后端差异与精度差异。
 - 先核实远端 CUDA Toolkit 与编译器。本次记录中非交互 SSH 的 PATH 未找到 `nvcc`，其他安装位置尚未调查。
