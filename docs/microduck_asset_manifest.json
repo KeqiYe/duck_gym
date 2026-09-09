@@ -4,7 +4,7 @@
   "repository": "https://github.com/pollen-robotics/microduck_rl",
   "commit": "1e79c29c97d8b38aee9eefde77a545860ba7658e",
   "root_tree_sha": "16aebdaba52b21fbdc16a2ca4b2053da0eb43ce6",
-  "status": "Metadata and XML inspected; mesh files not downloaded; rendering not verified.",
+  "status": "Pinned model and all 38 meshes downloaded and hash-verified; model compiled and rendered with MuJoCo 3.3.7.",
   "upstream_license_summary": {
     "software": "Apache-2.0",
     "models": "Creative Commons BY-SA-NC (README wording; confirm exact asset license on import)",
@@ -272,5 +272,14 @@
       "git_blob_sha": "d7b0e12b5aae0b482a0bf7ca36e97f93f435637d",
       "size_bytes": 495984
     }
-  ]
+  ],
+  "local_validation": {
+    "date": "2026-09-10",
+    "mujoco": "3.3.7",
+    "bodies_excluding_world": 15,
+    "hinges": 14,
+    "meshes": 38,
+    "materials": 38,
+    "render_physics_steps": 0
+  }
 }

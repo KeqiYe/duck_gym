@@ -22,3 +22,5 @@ checkpoints/
 wandb/
 
 # Original robot assets are managed explicitly with provenance and licenses.
+# Downloaded upstream assets; reproduce with scripts/fetch_assets.py.
+assets/microduck/
