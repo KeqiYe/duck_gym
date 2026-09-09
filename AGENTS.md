@@ -18,7 +18,9 @@
 - GPU/CUDA 代码在远端运行，优先 `master172`（工作根目录 `/public/yekq6Data/codex`），连接不可用时回退 `delltower`（`/home/yekeqi/Documents/HDD1/codex`）。
 - 每次远端运行前，先用 `scp` 或 `rsync` 把本次代码、配置及所需资产同步到所选主机的项目工作目录，核对完成后再在远端编译运行；不能直接运行陈旧副本或复用 Mac 二进制。
 - 源码副本、编译目录和模拟结果均放在上述工作根目录下的 `duck_gym/` 内，分别使用 `source/`、`build/`、`runs/`；完整约定见 `docs/REMOTE_EXECUTION.md`。
-- 完整保留 MicroDuck 外观，分别处理渲染网格与碰撞几何。验收要求见 `docs/TECHNICAL_PLAN.md`。
+- env 数量指并行独立仿真环境个数，配置记为 `num_envs`；环境数量、CPU/CUDA 求解后端和渲染开关独立设置。
+- 可视化仅要求在推理或单 CPU env（`num_envs=1`）下实现，支持 Mac 本地查看；GPU 批量训练无窗口运行，当前不要求训练期实时渲染或远端姿态流。
+- 完整保留 MicroDuck 外观，分别处理渲染网格与碰撞几何。单 CPU env 不是单核/单线程限制，验收要求见 `docs/TECHNICAL_PLAN.md`。
 
 ## 维护上下文
 
