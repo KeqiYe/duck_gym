@@ -4,7 +4,7 @@
 
 ## 当前进度
 
-阶段 0—3 已完成首版实现与本机验证。阶段 4 已打通 CPU PPO 训练、保存加载、推理和回放，选定 checkpoint 通过名义初态下的 30 秒与推力验收；随机初态鲁棒性和训练后期退化仍待改进，不能据此宣称通用稳定站立。阶段 5 尚未开始。
+阶段 0—3 已完成首版实现与本机验证。阶段 4 已打通 CPU PPO 训练、保存加载、推理和回放，选定 checkpoint 通过名义初态下的 30 秒与推力验收；随机初态鲁棒性和训练后期退化仍待改进，不能据此宣称通用稳定站立。阶段 5、6 已完成首版 CUDA/共享 CPU 实现、数值回归和 100 轮实际 PPO 更新；阶段 7 已建立四方向训练与评估，当前策略学会站立但尚未达到移动速度目标，正在继续训练。
 
 ## 开发顺序
 
@@ -65,7 +65,7 @@ bash scripts/setup.sh
 .venv/bin/python scripts/validate_cpu.py --microduck --case microduck_release --dt 0.0005
 ```
 
-上游软约束诊断可用 `--original-softness --case microduck_original_softness`，预期可能因容差不满足而返回非零。默认结果目录按时间命名；完整参数、支持范围及参考模型区别见技术设计。Linux 与 GPU 运行尚未验证。
+上游软约束诊断可用 `--original-softness --case microduck_original_softness`，预期可能因容差不满足而返回非零。默认结果目录按时间命名；完整参数、支持范围及参考模型区别见技术设计。阶段 1 当时仅验证 Mac；后续 Linux/CUDA 结果见阶段 5、6。
 
 ## 阶段 2—4 的实现与验收
 
@@ -110,3 +110,41 @@ bash scripts/setup_training.sh
 上述 checkpoint 编号对应本次已验证配置；其他训练应检查各 checkpoint 的评估结果，不能将末轮模型自动当作验收通过。
 
 每次训练目录包含 `config.json`、PPO checkpoint（含归一化统计）、TensorBoard 日志和 `training_report.json`；每次评估保存 `report.json` 与逐控制周期全部连杆位姿/实际推力的 `trajectory.npz`。视频、网格、构建和模型输出不纳入 Git，源码和配置纳入 Git。CPU 结果不能替代 CUDA 或实机验证；当前仍仅支持地面接触，无自碰撞或真实 BAM 执行器。
+
+## 阶段 5—7 的实现与验证
+
+- 阶段 5：`src/cuda/` 提供原生 CUDA 与可在 Mac 编译的共享 CPU 求解核心，包含 FP32/FP64、独立环境、重置、地面接触和有界电机控制。`scripts/validate_cuda.py` 进行原 CPU 对照和 CUDA 接口测试；`scripts/benchmark_cuda.py` 记录批量吞吐。隐式电机版本已通过 200 轮 FP32/FP64 回归；50 轮 FP32 满足其门限，50 轮 FP64 整机误差 2.43 mm 超过 2 mm 门限，失败记录保留。早期显式控制版本的结果不代替当前验证。
+- 阶段 6：`python/duck_gym/tensor_env.py`、`scripts/train_cuda.py` 对接 rsl-rl 2.3.3；仿真状态、观测、奖励与策略在同一 CUDA 设备。`scripts/evaluate_cuda.py` 支持将权重与归一化统计加载到 CPU 本地推理。已完成 100 轮 PPO，并加载权重与归一化统计进行本地 CPU 推理和完整资产回放；恢复训练的 checkpoint 编号从 100 延续。
+- 阶段 7 用户确定的目标：**前、后、左、右各 0.05 m/s，连续 30 秒**，左右为保持朝向的侧移。评估关闭自动重置，四个方向独立报告；当前还没有通过该验收的策略。
+- 阶段 7 首版工程测量协议：允许 2 秒起步，再测量完整 30 秒；平均速度向量误差不超过 0.01 m/s、每个完整 1 秒窗口误差不超过 0.02 m/s，最大偏航不超过 0.3 rad，并沿用环境的跌倒/约束失败判据。这些测量容差由实现选定，用于明确区分稳定移动、滑动和短时位移，不是用户新增的硬件参数。
+- 远端入口 `scripts/remote/run.py` 检查主机与设备，记录提交和逐文件哈希，先同步核验，再构建并以持久进程运行；各次日志、PID、退出码和 manifest 保存于约定的 `runs/<run-id>/`。
+
+### 当前可复查结果
+
+- `runs/gpu-20260910-213022/`：master172、物理 GPU 1（RTX 5880 Ada）、CUDA 12.8 / PyTorch 2.8.0+cu128；200 轮求解的 11 个用例在 FP32/FP64 均通过。1 秒整机对原 CPU 的 FP64 位置/旋转差为 0.0407 mm / 0.00130 rad，FP32 为 3.03 mm / 0.0211 rad；同精度共享 CPU 对照用于分离舍入差异。
+- 同一目录的首轮 PPO 使用 FP32、1024 env、1 ms 物理步、20 子步/控制周期、50 轮求解预算，完成 100 轮更新、2,457,600 个控制步（49,152,000 个物理步），耗时 466.6 秒；actor 参数 L2 变化 4.9515。checkpoint 中保存优化器与归一化统计。
+- `runs/stage7-checkpoint50/report.json`：四方向 CPU 评估均未跌倒，连续 32 秒（2 秒起步 + 30 秒测量），但平均速度接近零，四方向移动验收全部失败。该结果只能说明本次名义初态下学会站立。
+- `runs/stage6-local-smoke/`：早期 checkpoint 的本地加载与完整资产回放验证，约 0.7 秒跌倒；不作为站立或移动通过案例。
+- 本地 CTest、原有 4 个 Python 接口/渲染映射测试、新增 9 个共享核心/环境测试和 checkpoint 扩维/优化器延续测试通过。CUDA 边界测试覆盖隔离、掩码重置、快照所有权、跨 stream 调用、数值故障与重置；受控 PD/力矩饱和/外力的共享 CPU 对照由 `validate_cuda.py` 单独记录。
+- `runs/gpu-20260910-214658-799256/` 的 FP32 / 50 轮基准：预热后每轮 200 个物理步、三轮计时，128 / 512 / 1024 env 分别约 31,948 / 101,619 / 155,293 个物理环境步每秒。最大锚点误差约 21.9 μm、穿透约 13.1 μm。该批量 CUDA 数据不能与单环境 CPU MuJoCo 数字直接作为等精度性能比较。
+- `runs/gpu-20260910-221957-855511/` 的 `compute-sanitizer` memcheck 与 synccheck 均为零错误，随后实际完成 200 轮 PPO。接触力快照、数值故障重置与跨 stream 生命周期包含在本次检查中。
+- `runs/stage7-load600/` 与 `runs/stage7-filter600/`：加入足底离地、负载转移以及低通速度奖励后，四方向名义初态仍可连续运行 32 秒，但目标方向平均速度远低于 0.05 m/s，部分方向偏航超限；全部保留为失败案例。不能用更高训练奖励替代移动验收。
+- 求解预算敏感性诊断 `runs/control_iteration_audit.json`：同一段已记录动作在 50 / 100 / 200 / 400 轮预算下进行 2 秒开环回放，长期轨迹与跌倒结果不同。这不是闭环跨预算鲁棒性测试，也不证明哪个预算更准确；恢复训练默认保留求解预算，策略验收必须使用对应配置。
+
+### CUDA 运行入口
+
+```bash
+# 首次在约定远端工作区安装隔离依赖；显式选择空闲 GPU。
+.venv/bin/python scripts/remote/run.py --gpu 1 --setup
+# 首版精度回归：FP32 / FP64，各 200 轮求解预算。
+.venv/bin/python scripts/remote/run.py --gpu 1 -- python scripts/validate_cuda.py
+# 实际 FP32 训练预算的单独回归。
+.venv/bin/python scripts/remote/run.py --gpu 1 -- python scripts/validate_cuda.py --iterations 50 --precision fp32
+# 训练入口；是否通过移动验收仍需独立检查。
+.venv/bin/python scripts/remote/run.py --gpu 1 -- python scripts/train_cuda.py --task locomotion --gait --foot-clearance --num-envs 1024 --solver-iterations 50 --iterations 300
+# 本地加载随模型带回的配置与参考表，单 CPU env 推理。
+.venv/bin/python scripts/evaluate_cuda.py --checkpoint runs/<run-id>/train/model_<iteration>.pt --backend cpu --direction forward --output runs/local-eval
+.venv/bin/python scripts/render_trajectory.py runs/local-eval/forward/trajectory.npz --follow
+```
+
+`--resume` 保留权重、优化器和归一化统计并延续迭代编号；改变动作尺度时显式指定 `--action-scale`，脚本缩放 actor 末层与探索标准差，并清理这些被重参数化变量的优化器动量。动作饱和区域无法保证与旧策略完全等价，需重新评估。`--noise-std` 是明确的探索调整，记录在新配置中。训练目录保存原生模型、元数据和步态参考的副本及哈希，避免后续生成参考表覆盖旧 checkpoint 的推理配置。

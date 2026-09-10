@@ -10,4 +10,6 @@ cmake --build build/cpu-release --parallel
 .venv/bin/python scripts/prepare_standing.py
 ctest --test-dir build/cpu-release --output-on-failure
 .venv/bin/python tests/test_python.py
+.venv/bin/python tests/test_tensor_env.py
+.venv/bin/python tests/test_checkpoint.py
 .venv/bin/python -m pip check

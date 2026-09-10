@@ -17,6 +17,7 @@ def main():
     p.add_argument("trajectory", type=Path)
     p.add_argument("--model-dir", type=Path, default=ROOT / "build/models/standing")
     p.add_argument("--output", type=Path)
+    p.add_argument("--follow", action="store_true", help="Follow the base during locomotion")
     p.add_argument("--fps", type=int, default=25)
     a = p.parse_args()
     out = a.output or a.trajectory.parent
@@ -45,12 +46,15 @@ def main():
         )
         for index in indices:
             apply_body_poses(m, d, states[index])
+            if a.follow:
+                cam.lookat[:2] = states[index, 1, :2]
             renderer.update_scene(d, cam, scene_option=opt)
             frame = Image.fromarray(renderer.render())
             draw = ImageDraw.Draw(frame)
             font = ImageFont.load_default(size=19)
             force = record["forces"][index]
-            label = f"Native AVBD | CPU | {index*dt:5.2f} s"
+            backend = str(record["backend"]) if "backend" in record else "cpu"
+            label = f"Native AVBD | {backend.upper()} | {index*dt:5.2f} s"
             if np.linalg.norm(force) > 0:
                 label += f" | Push ({force[0]:+.3f}, {force[1]:+.3f}) N"
             draw.rectangle((12, 12, 940, 46), fill=(20, 24, 29))
