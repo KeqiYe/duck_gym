@@ -30,6 +30,7 @@ def main():
     p.add_argument("--tracking-sigma", type=float)
     p.add_argument("--tracking-weight", type=float)
     p.add_argument("--heading-weight", type=float)
+    p.add_argument("--command-direction", choices=["all", "forward", "backward", "left", "right"])
     p.add_argument("--noise-std", type=float)
     p.add_argument("--fp64", action=argparse.BooleanOptionalAction, default=None)
     p.add_argument("--seed", type=int, default=42)
@@ -53,7 +54,8 @@ def main():
     torch.set_num_threads(1)
     torch.manual_seed(args.seed)
     torch.cuda.manual_seed_all(args.seed)
-    model_dir = Path(os.environ["DUCK_CUDA_BUILD"]).parents[1] / "build/models/standing"
+    # Concurrent training runs must not overwrite each other's prepared models.
+    model_dir = args.output / "prepared"
     prepare(model_dir)
     cfg = json.loads((ROOT / "configs/standing.json").read_text())
     cfg["save_interval"] = 50
@@ -68,6 +70,7 @@ def main():
         velocity_filter_seconds=args.velocity_filter_seconds or 0.0,
         tracking_weight=args.tracking_weight if args.tracking_weight is not None else 4.0,
         heading_weight=args.heading_weight if args.heading_weight is not None else 0.4,
+        command_direction=args.command_direction or "all",
         task=args.task,
         num_envs=args.num_envs,
         iterations=args.solver_iterations if args.solver_iterations is not None else 100,
@@ -94,6 +97,8 @@ def main():
         for key in ("tracking_weight", "heading_weight"):
             if getattr(args, key) is None:
                 env_cfg[key] = old["environment"].get(key, env_cfg[key])
+        if args.command_direction is None:
+            env_cfg["command_direction"] = old["environment"].get("command_direction", "all")
         if args.action_scale is None:
             env_cfg["action_scale"] = old["environment"]["action_scale"]
         for k in ("fp64", "dt", "substeps"):

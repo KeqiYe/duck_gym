@@ -53,5 +53,14 @@ obs, reward, done, info = e.step(torch.zeros(4, 14, device=e.device))
 assert done.tolist() == [True, False, False, False]
 assert info["time_outs"].tolist() == [True, False, False, False]
 assert torch.isfinite(obs).all() and torch.isfinite(reward).all()
+single = TensorEnv(model, num_envs=1, iterations=50, randomize=False)
+e.reset(torch.ones(4, device=e.device, dtype=torch.bool))
+target = e.home.repeat(4, 1)
+target[:, 0] += 0.03
+forces = torch.tensor([[0.02, 0, 0]], device=e.device).repeat(4, 1)
+e.native.step(target, forces, 20, 0.55, 0.96)
+single.native.step(target[:1].contiguous(), forces[:1].contiguous(), 20, 0.55, 0.96)
+for one, batch in zip(single.native.state(), e.native.state()):
+    torch.testing.assert_close(one[0], batch[2], rtol=0, atol=0)
 torch.cuda.synchronize()
 print(json.dumps(dict(boundary_passed=True, gpu=torch.cuda.get_device_name())))

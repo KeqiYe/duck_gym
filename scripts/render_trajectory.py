@@ -5,6 +5,7 @@ from bootstrap import ROOT
 import argparse
 from pathlib import Path
 import json
+import hashlib
 import numpy as np
 import mujoco
 from PIL import Image, ImageDraw, ImageFont
@@ -18,6 +19,7 @@ def main():
     p.add_argument("--model-dir", type=Path, default=ROOT / "build/models/standing")
     p.add_argument("--output", type=Path)
     p.add_argument("--follow", action="store_true", help="Follow the base during locomotion")
+    p.add_argument("--azimuth", type=float, default=35, help="Camera angle; default shows the face")
     p.add_argument("--fps", type=int, default=25)
     a = p.parse_args()
     out = a.output or a.trajectory.parent
@@ -30,7 +32,7 @@ def main():
     mujoco.mj_forward(m, d)  # Initial fixed lights/camera only; no physics integration.
     cam = mujoco.MjvCamera()
     cam.distance = 0.65
-    cam.azimuth = 215
+    cam.azimuth = a.azimuth
     cam.elevation = -14
     cam.lookat[:] = [0, 0, 0.13]
     opt = mujoco.MjvOption()
@@ -55,6 +57,9 @@ def main():
             force = record["forces"][index]
             backend = str(record["backend"]) if "backend" in record else "cpu"
             label = f"Native AVBD | {backend.upper()} | {index*dt:5.2f} s"
+            if "command" in record and np.linalg.norm(record["command"]) > 0:
+                command = record["command"]
+                label += f" | Command ({command[0]:+.3f}, {command[1]:+.3f}) m/s"
             if np.linalg.norm(force) > 0:
                 label += f" | Push ({force[0]:+.3f}, {force[1]:+.3f}) N"
             draw.rectangle((12, 12, 940, 46), fill=(20, 24, 29))
@@ -72,6 +77,14 @@ def main():
                 materials=m.nmat,
                 physics_steps=0,
                 source=str(a.trajectory),
+                trajectory_sha256=hashlib.sha256(a.trajectory.read_bytes()).hexdigest(),
+                model_sha256=hashlib.sha256((a.model_dir / "visual.xml").read_bytes()).hexdigest(),
+                camera=dict(
+                    azimuth=a.azimuth,
+                    elevation=cam.elevation,
+                    distance=cam.distance,
+                    follow=a.follow,
+                ),
                 pose_mapping="per-body COM/principal frame to visual geoms",
             ),
             indent=2,

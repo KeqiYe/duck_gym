@@ -78,6 +78,23 @@ class TensorTests(unittest.TestCase):
         for x, y in zip(a.native.state(), b.native.state()):
             torch.testing.assert_close(x, y, rtol=0, atol=0)
 
+    def test_physics_invariant_to_batch_size(self):
+        batch = self.env(auto_reset=False)
+        single = TensorEnv(
+            ROOT / "build/models/standing",
+            num_envs=1,
+            backend="cpu",
+            randomize=False,
+            auto_reset=False,
+            iterations=50,
+        )
+        for step in range(20):
+            action = (0.1 * torch.sin(torch.arange(14) + step * 0.1))[None]
+            single.step(action)
+            batch.step(action.expand(3, -1))
+        for a, b in zip(single.native.state(), batch.native.state()):
+            torch.testing.assert_close(a[0], b[1], rtol=0, atol=0)
+
     @unittest.skipUnless(
         (ROOT / "build/models/standing/gait.npz").exists(), "Generate gait reference first"
     )
@@ -127,6 +144,13 @@ class TensorTests(unittest.TestCase):
         e.reset(torch.tensor([True, False, False]))
         self.assertEqual(float(e.filtered_velocity[0].abs().sum()), 0)
         torch.testing.assert_close(e.filtered_velocity[1:], old[1:], rtol=0, atol=0)
+
+    def test_fixed_direction_survives_resets(self):
+        e = self.env(task="locomotion", command_direction="backward", episode_seconds=0.02)
+        expected = torch.tensor([[-0.05, 0.0]]).expand(3, -1)
+        torch.testing.assert_close(e.commands, expected)
+        e.step(torch.zeros(3, 14))
+        torch.testing.assert_close(e.commands, expected)
 
     def test_numeric_failure_isolated_and_resettable(self):
         e = self.env(auto_reset=False)

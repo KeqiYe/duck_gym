@@ -68,6 +68,7 @@ class TensorEnv:
         velocity_filter_seconds=0.0,
         tracking_weight=4.0,
         heading_weight=0.4,
+        command_direction="all",
     ):
         if substeps < 1 or episode_seconds <= 0 or action_scale <= 0:
             raise ValueError("Invalid control configuration")
@@ -155,6 +156,10 @@ class TensorEnv:
                 [[1.0, 0], [-1, 0], [0, 1], [0, -1]], device=self.device, dtype=self.dtype
             )
         self.command_speed = command_speed
+        self.direction_names = ("forward", "backward", "left", "right")
+        if command_direction not in ("all", *self.direction_names):
+            raise ValueError("Invalid command direction")
+        self.command_direction = command_direction
         self.returns = torch.zeros(num_envs, device=self.device)
         self.reset(torch.ones(num_envs, device=self.device, dtype=torch.bool))
 
@@ -186,9 +191,17 @@ class TensorEnv:
             directions = torch.tensor(
                 [[1.0, 0], [-1, 0], [0, 1], [0, -1]], device=self.device, dtype=self.dtype
             )
-            selected = torch.randint(
-                4, (self.num_envs,), generator=self.generator, device=self.device
-            )
+            if self.command_direction == "all":
+                selected = torch.randint(
+                    4, (self.num_envs,), generator=self.generator, device=self.device
+                )
+            else:
+                selected = torch.full(
+                    (self.num_envs,),
+                    self.direction_names.index(self.command_direction),
+                    device=self.device,
+                    dtype=torch.long,
+                )
             self.commands = torch.where(
                 mask[:, None], directions[selected] * self.command_speed, self.commands
             )
@@ -339,6 +352,7 @@ class TensorEnv:
             "time_outs": timeout,
             "failed": failed,
             "diagnostics": diag,
+            "applied_targets": target,
             "terminal_observation": obs,
             "terminal_mask": done,
             "log": {
