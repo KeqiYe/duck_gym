@@ -1,0 +1,1022 @@
+{
+  "schema_version": 1,
+  "date": "2026-09-27",
+  "gpu": "NVIDIA RTX 5880 Ada Generation",
+  "unit": "physical env-step/s",
+  "precision": "fp32",
+  "physics_profile": "avbd-common",
+  "dt_seconds": 0.001,
+  "physics_steps_per_trial": 200,
+  "chunk_steps": 20,
+  "repetitions": 5,
+  "minimum_warmup_physical_steps": 1000,
+  "minimum_warmup_cuda_seconds": 10,
+  "quality_status": "Different implementations, not an equal-accuracy comparison",
+  "provenance_note": "Source worktrees were uncommitted when measured; exact source/binary hashes and run ids identify archived experiments. Main Newton used extra buffer checks and zero joint_f mapping; current adapter matches no_extra_work controls. Control parent 112157 exited 1 in its later excluded history subgroup; the listed no_extra_work groups completed successfully.",
+  "measurements": [
+    {
+      "group": "main",
+      "run_id": "gpu-20260927-111219-345972",
+      "engine": "avbd",
+      "num_envs": 1024,
+      "gpu_seconds": [
+        0.4927050476074219,
+        0.4915338134765625,
+        0.49286886596679685,
+        0.49123837280273436,
+        0.4924864501953125
+      ],
+      "median_gpu_seconds": 0.4924864501953125,
+      "env_steps_per_second": 415849.00441175484,
+      "gpu_time_cv_percent": 0.1331565833606839,
+      "initialization_seconds": 3.189759835600853,
+      "initialization_phases_seconds": {
+        "imports_seconds": 1.408910071477294,
+        "cuda_context_seconds": 0.25590564124286175,
+        "asset_compile_export_seconds": 0.9147711358964443,
+        "engine_import_build_load_seconds": 0.3963988795876503,
+        "model_data_control_allocation_seconds": 0.1650888230651617,
+        "pre_first_step_total_seconds": 3.1412454042583704,
+        "first_reset_and_chunk_compile_seconds": 0.04851244390010834,
+        "graph_capture_and_first_launch_seconds": 1.987442374229431e-06,
+        "full_trajectory_preflight_seconds": 1.669311249628663,
+        "warmup_seconds": 10.333024505525827,
+        "warmup_gpu_seconds": 10.329714477539062,
+        "ready_for_measurement_total_seconds": 15.192307395860553
+      },
+      "warmup_steps": 4200,
+      "versions": {
+        "torch": "2.8.0+cu128",
+        "mujoco": "3.12.0",
+        "mujoco-warp": "3.12.0",
+        "warp-lang": "1.17.0",
+        "numpy": "2.3.2"
+      },
+      "cache_files_before": 6,
+      "source_sha256": {
+        "scripts/benchmark_engines.py": "5ff33c29e8000123dc86e8b53fe09ebd2853c2f4f781e236c0fd16ab356b9762",
+        "scripts/prepare_standing.py": "dd6d4253ecd99f7219f6046c98109caa530d9879e86c7d116fa46dbd73b7d4ef"
+      },
+      "native_binary_sha256": "d2bc2128d2b3dc2bcb6b779e540584390060ea0a17966e53d3d5a6b20ac36fda",
+      "asset_commit": "1e79c29c97d8b38aee9eefde77a545860ba7658e",
+      "model_sha256": "b6b7bd86cd2de2478fa281d4f016d2a0cdc13c9de6a7554617e352e501d4c2de",
+      "original_report_sha256": "7e1b362c557a0cedfe2e87a6106b931accabeb25c27de4d25c772547b17ced5a",
+      "execution_repeatability": {
+        "policy": "strict",
+        "reset_initial_state_bitwise_verified": true,
+        "direct_repeat": {
+          "body": {
+            "bitwise_equal": true,
+            "allclose_rtol_1e_5_atol_1e_7": true,
+            "max_abs_difference": 0.0
+          },
+          "joint": {
+            "bitwise_equal": true,
+            "allclose_rtol_1e_5_atol_1e_7": true,
+            "max_abs_difference": 0.0
+          }
+        },
+        "direct_chunk": {
+          "body": {
+            "bitwise_equal": true,
+            "allclose_rtol_1e_5_atol_1e_7": true,
+            "max_abs_difference": 0.0
+          },
+          "joint": {
+            "bitwise_equal": true,
+            "allclose_rtol_1e_5_atol_1e_7": true,
+            "max_abs_difference": 0.0
+          }
+        }
+      },
+      "all_trial_states_finite": true
+    },
+    {
+      "group": "main",
+      "run_id": "gpu-20260927-111219-345972",
+      "engine": "avbd",
+      "num_envs": 2048,
+      "gpu_seconds": [
+        1.0192410888671875,
+        1.020982666015625,
+        1.0195760498046875,
+        1.0215850219726563,
+        1.020030517578125
+      ],
+      "median_gpu_seconds": 1.020030517578125,
+      "env_steps_per_second": 401556.6132006716,
+      "gpu_time_cv_percent": 0.08582516022310883,
+      "initialization_seconds": 3.2022603135555983,
+      "initialization_phases_seconds": {
+        "imports_seconds": 1.4016424026340246,
+        "cuda_context_seconds": 0.25355539098381996,
+        "asset_compile_export_seconds": 0.9189720917493105,
+        "engine_import_build_load_seconds": 0.3713342286646366,
+        "model_data_control_allocation_seconds": 0.1568043790757656,
+        "pre_first_step_total_seconds": 3.102487662807107,
+        "first_reset_and_chunk_compile_seconds": 0.09977063536643982,
+        "graph_capture_and_first_launch_seconds": 2.0153820514678955e-06,
+        "full_trajectory_preflight_seconds": 3.3392147440463305,
+        "warmup_seconds": 10.16961202211678,
+        "warmup_gpu_seconds": 10.167481262207032,
+        "ready_for_measurement_total_seconds": 16.71129429154098
+      },
+      "warmup_steps": 2000,
+      "versions": {
+        "torch": "2.8.0+cu128",
+        "mujoco": "3.12.0",
+        "mujoco-warp": "3.12.0",
+        "warp-lang": "1.17.0",
+        "numpy": "2.3.2"
+      },
+      "cache_files_before": 6,
+      "source_sha256": {
+        "scripts/benchmark_engines.py": "5ff33c29e8000123dc86e8b53fe09ebd2853c2f4f781e236c0fd16ab356b9762",
+        "scripts/prepare_standing.py": "dd6d4253ecd99f7219f6046c98109caa530d9879e86c7d116fa46dbd73b7d4ef"
+      },
+      "native_binary_sha256": "d2bc2128d2b3dc2bcb6b779e540584390060ea0a17966e53d3d5a6b20ac36fda",
+      "asset_commit": "1e79c29c97d8b38aee9eefde77a545860ba7658e",
+      "model_sha256": "b6b7bd86cd2de2478fa281d4f016d2a0cdc13c9de6a7554617e352e501d4c2de",
+      "original_report_sha256": "ed94f614b6d1e4b364893847ba10dec64050cc5b8aa5b12ea53fc80509121ead",
+      "execution_repeatability": {
+        "policy": "strict",
+        "reset_initial_state_bitwise_verified": true,
+        "direct_repeat": {
+          "body": {
+            "bitwise_equal": true,
+            "allclose_rtol_1e_5_atol_1e_7": true,
+            "max_abs_difference": 0.0
+          },
+          "joint": {
+            "bitwise_equal": true,
+            "allclose_rtol_1e_5_atol_1e_7": true,
+            "max_abs_difference": 0.0
+          }
+        },
+        "direct_chunk": {
+          "body": {
+            "bitwise_equal": true,
+            "allclose_rtol_1e_5_atol_1e_7": true,
+            "max_abs_difference": 0.0
+          },
+          "joint": {
+            "bitwise_equal": true,
+            "allclose_rtol_1e_5_atol_1e_7": true,
+            "max_abs_difference": 0.0
+          }
+        }
+      },
+      "all_trial_states_finite": true
+    },
+    {
+      "group": "main",
+      "run_id": "gpu-20260927-111219-345972",
+      "engine": "avbd",
+      "num_envs": 4096,
+      "gpu_seconds": [
+        1.9462152099609376,
+        1.9438427734375,
+        1.948371337890625,
+        1.9439813232421874,
+        1.95317041015625
+      ],
+      "median_gpu_seconds": 1.9462152099609376,
+      "env_steps_per_second": 420919.53439026006,
+      "gpu_time_cv_percent": 0.17729060593830576,
+      "initialization_seconds": 3.2719139494001865,
+      "initialization_phases_seconds": {
+        "imports_seconds": 1.400865288451314,
+        "cuda_context_seconds": 0.26559495739638805,
+        "asset_compile_export_seconds": 0.88820780813694,
+        "engine_import_build_load_seconds": 0.3709336034953594,
+        "model_data_control_allocation_seconds": 0.1574432048946619,
+        "pre_first_step_total_seconds": 3.0832408368587494,
+        "first_reset_and_chunk_compile_seconds": 0.18867122009396553,
+        "graph_capture_and_first_launch_seconds": 1.8924474716186523e-06,
+        "full_trajectory_preflight_seconds": 6.094384955242276,
+        "warmup_seconds": 11.669950930401683,
+        "warmup_gpu_seconds": 11.667747436523438,
+        "ready_for_measurement_total_seconds": 21.036466328427196
+      },
+      "warmup_steps": 1200,
+      "versions": {
+        "torch": "2.8.0+cu128",
+        "mujoco": "3.12.0",
+        "mujoco-warp": "3.12.0",
+        "warp-lang": "1.17.0",
+        "numpy": "2.3.2"
+      },
+      "cache_files_before": 6,
+      "source_sha256": {
+        "scripts/benchmark_engines.py": "5ff33c29e8000123dc86e8b53fe09ebd2853c2f4f781e236c0fd16ab356b9762",
+        "scripts/prepare_standing.py": "dd6d4253ecd99f7219f6046c98109caa530d9879e86c7d116fa46dbd73b7d4ef"
+      },
+      "native_binary_sha256": "d2bc2128d2b3dc2bcb6b779e540584390060ea0a17966e53d3d5a6b20ac36fda",
+      "asset_commit": "1e79c29c97d8b38aee9eefde77a545860ba7658e",
+      "model_sha256": "b6b7bd86cd2de2478fa281d4f016d2a0cdc13c9de6a7554617e352e501d4c2de",
+      "original_report_sha256": "d3ca47f67b37c259018f530bf7822051104dc7ca5833363fec677b385083362e",
+      "execution_repeatability": {
+        "policy": "strict",
+        "reset_initial_state_bitwise_verified": true,
+        "direct_repeat": {
+          "body": {
+            "bitwise_equal": true,
+            "allclose_rtol_1e_5_atol_1e_7": true,
+            "max_abs_difference": 0.0
+          },
+          "joint": {
+            "bitwise_equal": true,
+            "allclose_rtol_1e_5_atol_1e_7": true,
+            "max_abs_difference": 0.0
+          }
+        },
+        "direct_chunk": {
+          "body": {
+            "bitwise_equal": true,
+            "allclose_rtol_1e_5_atol_1e_7": true,
+            "max_abs_difference": 0.0
+          },
+          "joint": {
+            "bitwise_equal": true,
+            "allclose_rtol_1e_5_atol_1e_7": true,
+            "max_abs_difference": 0.0
+          }
+        }
+      },
+      "all_trial_states_finite": true
+    },
+    {
+      "group": "main",
+      "run_id": "gpu-20260927-111219-345972",
+      "engine": "avbd",
+      "num_envs": 512,
+      "gpu_seconds": [
+        0.3971455688476562,
+        0.3963022155761719,
+        0.39671466064453126,
+        0.39664382934570314,
+        0.3968613586425781
+      ],
+      "median_gpu_seconds": 0.39671466064453126,
+      "env_steps_per_second": 258120.02973026905,
+      "gpu_time_cv_percent": 0.06953801368142098,
+      "initialization_seconds": 117.15974929742515,
+      "initialization_phases_seconds": {
+        "imports_seconds": 1.380568178370595,
+        "cuda_context_seconds": 0.2557699326425791,
+        "asset_compile_export_seconds": 0.9131052047014236,
+        "engine_import_build_load_seconds": 114.39562703669071,
+        "model_data_control_allocation_seconds": 0.17506147548556328,
+        "pre_first_step_total_seconds": 117.12029716558754,
+        "first_reset_and_chunk_compile_seconds": 0.03945029154419899,
+        "graph_capture_and_first_launch_seconds": 1.8402934074401855e-06,
+        "full_trajectory_preflight_seconds": 1.3578298036009073,
+        "warmup_seconds": 10.311062501743436,
+        "warmup_gpu_seconds": 10.30724237060547,
+        "ready_for_measurement_total_seconds": 128.82885790802538
+      },
+      "warmup_steps": 5200,
+      "versions": {
+        "torch": "2.8.0+cu128",
+        "mujoco": "3.12.0",
+        "mujoco-warp": "3.12.0",
+        "warp-lang": "1.17.0",
+        "numpy": "2.3.2"
+      },
+      "cache_files_before": 0,
+      "source_sha256": {
+        "scripts/benchmark_engines.py": "5ff33c29e8000123dc86e8b53fe09ebd2853c2f4f781e236c0fd16ab356b9762",
+        "scripts/prepare_standing.py": "dd6d4253ecd99f7219f6046c98109caa530d9879e86c7d116fa46dbd73b7d4ef"
+      },
+      "native_binary_sha256": "d2bc2128d2b3dc2bcb6b779e540584390060ea0a17966e53d3d5a6b20ac36fda",
+      "asset_commit": "1e79c29c97d8b38aee9eefde77a545860ba7658e",
+      "model_sha256": "b6b7bd86cd2de2478fa281d4f016d2a0cdc13c9de6a7554617e352e501d4c2de",
+      "original_report_sha256": "dad3255c37e8477223eacd8143a6f7dd5481da23aac09e56e4776e8a7b5e4f94",
+      "execution_repeatability": {
+        "policy": "strict",
+        "reset_initial_state_bitwise_verified": true,
+        "direct_repeat": {
+          "body": {
+            "bitwise_equal": true,
+            "allclose_rtol_1e_5_atol_1e_7": true,
+            "max_abs_difference": 0.0
+          },
+          "joint": {
+            "bitwise_equal": true,
+            "allclose_rtol_1e_5_atol_1e_7": true,
+            "max_abs_difference": 0.0
+          }
+        },
+        "direct_chunk": {
+          "body": {
+            "bitwise_equal": true,
+            "allclose_rtol_1e_5_atol_1e_7": true,
+            "max_abs_difference": 0.0
+          },
+          "joint": {
+            "bitwise_equal": true,
+            "allclose_rtol_1e_5_atol_1e_7": true,
+            "max_abs_difference": 0.0
+          }
+        }
+      },
+      "all_trial_states_finite": true
+    },
+    {
+      "group": "main",
+      "run_id": "gpu-20260927-111219-345972",
+      "engine": "newton-avbd",
+      "num_envs": 1024,
+      "gpu_seconds": [
+        1.30336865234375,
+        1.3040291748046875,
+        1.30381103515625,
+        1.3075340576171874,
+        1.30750537109375
+      ],
+      "median_gpu_seconds": 1.3040291748046875,
+      "env_steps_per_second": 157051.70095651745,
+      "gpu_time_cv_percent": 0.14293791695056018,
+      "initialization_seconds": 13.330529637634754,
+      "initialization_phases_seconds": {
+        "imports_seconds": 1.4023052528500557,
+        "cuda_context_seconds": 0.26547968573868275,
+        "asset_compile_export_seconds": 0.9038009699434042,
+        "engine_import_runtime_seconds": 0.9998944941908121,
+        "model_data_control_allocation_seconds": 8.12927426584065,
+        "pre_first_step_total_seconds": 11.700941564515233,
+        "first_reset_and_chunk_compile_seconds": 0.743657760322094,
+        "graph_capture_and_first_launch_seconds": 0.8859303127974272,
+        "full_trajectory_preflight_seconds": 18.50195129774511,
+        "warmup_seconds": 10.432220105081797,
+        "warmup_gpu_seconds": 10.427081420898437,
+        "ready_for_measurement_total_seconds": 42.26496035605669
+      },
+      "warmup_steps": 1600,
+      "versions": {
+        "torch": "2.8.0+cu128",
+        "mujoco": "3.12.0",
+        "mujoco-warp": "3.12.0",
+        "warp-lang": "1.17.0",
+        "numpy": "2.3.2",
+        "newton": "1.6.0"
+      },
+      "cache_files_before": 60,
+      "source_sha256": {
+        "scripts/benchmark_engines.py": "5ff33c29e8000123dc86e8b53fe09ebd2853c2f4f781e236c0fd16ab356b9762",
+        "scripts/prepare_standing.py": "dd6d4253ecd99f7219f6046c98109caa530d9879e86c7d116fa46dbd73b7d4ef",
+        "scripts/benchmark_newton_avbd.py": "b9de6245fabe6a7a9a2a00dc51b3644d8fd69d3708b23c5013dcbbeebd35f663"
+      },
+      "native_binary_sha256": null,
+      "asset_commit": "1e79c29c97d8b38aee9eefde77a545860ba7658e",
+      "model_sha256": "b6b7bd86cd2de2478fa281d4f016d2a0cdc13c9de6a7554617e352e501d4c2de",
+      "original_report_sha256": "eedefd1f36d527ff84de37b7ffa250e270a3f1233eabb7a770d9cb34102e82d0",
+      "execution_repeatability": {
+        "policy": "report",
+        "reset_initial_state_bitwise_verified": true,
+        "direct_repeat": {
+          "body_q": {
+            "bitwise_equal": false,
+            "allclose_rtol_1e_5_atol_1e_7": false,
+            "max_abs_difference": 0.0001951158046722412,
+            "max_position_vector_difference_m": 1.6335180956233916e-05,
+            "max_quaternion_component_difference": 0.0001951158046722412
+          },
+          "body_qd": {
+            "bitwise_equal": false,
+            "allclose_rtol_1e_5_atol_1e_7": false,
+            "max_abs_difference": 0.2671450935304165,
+            "max_linear_velocity_vector_difference_m_s": 0.006558958980122764,
+            "max_angular_velocity_vector_difference_rad_s": 0.26813346720044184
+          }
+        },
+        "direct_chunk": {
+          "body_q": {
+            "bitwise_equal": false,
+            "allclose_rtol_1e_5_atol_1e_7": false,
+            "max_abs_difference": 0.00021372537594288588,
+            "max_position_vector_difference_m": 1.3710525974768245e-05,
+            "max_quaternion_component_difference": 0.00021372537594288588
+          },
+          "body_qd": {
+            "bitwise_equal": false,
+            "allclose_rtol_1e_5_atol_1e_7": false,
+            "max_abs_difference": 0.2594474498182535,
+            "max_linear_velocity_vector_difference_m_s": 0.006415509261072231,
+            "max_angular_velocity_vector_difference_rad_s": 0.25990780762483573
+          }
+        }
+      },
+      "all_trial_states_finite": true
+    },
+    {
+      "group": "main",
+      "run_id": "gpu-20260927-111219-345972",
+      "engine": "newton-avbd",
+      "num_envs": 2048,
+      "gpu_seconds": [
+        1.77766064453125,
+        1.777617919921875,
+        1.7781053466796874,
+        1.777976318359375,
+        1.7778841552734375
+      ],
+      "median_gpu_seconds": 1.7778841552734375,
+      "env_steps_per_second": 230386.21430146205,
+      "gpu_time_cv_percent": 0.010433470648917817,
+      "initialization_seconds": 15.730645962059498,
+      "initialization_phases_seconds": {
+        "imports_seconds": 1.4068545121699572,
+        "cuda_context_seconds": 0.2519072834402323,
+        "asset_compile_export_seconds": 0.9200611487030983,
+        "engine_import_runtime_seconds": 0.9922756794840097,
+        "model_data_control_allocation_seconds": 10.484759634360671,
+        "pre_first_step_total_seconds": 14.056033691391349,
+        "first_reset_and_chunk_compile_seconds": 0.7449086513370275,
+        "graph_capture_and_first_launch_seconds": 0.9297036193311214,
+        "full_trajectory_preflight_seconds": 23.847882978618145,
+        "warmup_seconds": 10.671952441334724,
+        "warmup_gpu_seconds": 10.667471557617185,
+        "ready_for_measurement_total_seconds": 50.250730004161596
+      },
+      "warmup_steps": 1200,
+      "versions": {
+        "torch": "2.8.0+cu128",
+        "mujoco": "3.12.0",
+        "mujoco-warp": "3.12.0",
+        "warp-lang": "1.17.0",
+        "numpy": "2.3.2",
+        "newton": "1.6.0"
+      },
+      "cache_files_before": 60,
+      "source_sha256": {
+        "scripts/benchmark_engines.py": "5ff33c29e8000123dc86e8b53fe09ebd2853c2f4f781e236c0fd16ab356b9762",
+        "scripts/prepare_standing.py": "dd6d4253ecd99f7219f6046c98109caa530d9879e86c7d116fa46dbd73b7d4ef",
+        "scripts/benchmark_newton_avbd.py": "b9de6245fabe6a7a9a2a00dc51b3644d8fd69d3708b23c5013dcbbeebd35f663"
+      },
+      "native_binary_sha256": null,
+      "asset_commit": "1e79c29c97d8b38aee9eefde77a545860ba7658e",
+      "model_sha256": "b6b7bd86cd2de2478fa281d4f016d2a0cdc13c9de6a7554617e352e501d4c2de",
+      "original_report_sha256": "688df0e6e3971af887b0c47b0c20bf83cad3d308ebd33d8d85388dbc5fd1d315",
+      "execution_repeatability": {
+        "policy": "report",
+        "reset_initial_state_bitwise_verified": true,
+        "direct_repeat": {
+          "body_q": {
+            "bitwise_equal": false,
+            "allclose_rtol_1e_5_atol_1e_7": false,
+            "max_abs_difference": 0.00022104382514953613,
+            "max_position_vector_difference_m": 1.663576726174431e-05,
+            "max_quaternion_component_difference": 0.00022104382514953613
+          },
+          "body_qd": {
+            "bitwise_equal": false,
+            "allclose_rtol_1e_5_atol_1e_7": false,
+            "max_abs_difference": 0.2609120272099972,
+            "max_linear_velocity_vector_difference_m_s": 0.006503209499397853,
+            "max_angular_velocity_vector_difference_rad_s": 0.26152562559420894
+          }
+        },
+        "direct_chunk": {
+          "body_q": {
+            "bitwise_equal": false,
+            "allclose_rtol_1e_5_atol_1e_7": false,
+            "max_abs_difference": 0.00021632015705108643,
+            "max_position_vector_difference_m": 1.497781310919475e-05,
+            "max_quaternion_component_difference": 0.00021632015705108643
+          },
+          "body_qd": {
+            "bitwise_equal": false,
+            "allclose_rtol_1e_5_atol_1e_7": false,
+            "max_abs_difference": 0.259425550699234,
+            "max_linear_velocity_vector_difference_m_s": 0.006452074645318373,
+            "max_angular_velocity_vector_difference_rad_s": 0.25984712053885256
+          }
+        }
+      },
+      "all_trial_states_finite": true
+    },
+    {
+      "group": "main",
+      "run_id": "gpu-20260927-111219-345972",
+      "engine": "newton-avbd",
+      "num_envs": 4096,
+      "gpu_seconds": [
+        3.1030732421875,
+        3.1038720703125,
+        3.103345458984375,
+        3.103115234375,
+        3.102654541015625
+      ],
+      "median_gpu_seconds": 3.103115234375,
+      "env_steps_per_second": 263992.77439820743,
+      "gpu_time_cv_percent": 0.012832396993521782,
+      "initialization_seconds": 21.971844252198935,
+      "initialization_phases_seconds": {
+        "imports_seconds": 1.3998224586248398,
+        "cuda_context_seconds": 0.26110854744911194,
+        "asset_compile_export_seconds": 0.9102564062923193,
+        "engine_import_runtime_seconds": 1.0006758701056242,
+        "model_data_control_allocation_seconds": 16.563279878348112,
+        "pre_first_step_total_seconds": 20.135324891656637,
+        "first_reset_and_chunk_compile_seconds": 0.7585811633616686,
+        "graph_capture_and_first_launch_seconds": 1.0779381971806288,
+        "full_trajectory_preflight_seconds": 35.302722534164786,
+        "warmup_seconds": 15.501400271430612,
+        "warmup_gpu_seconds": 15.497427490234376,
+        "ready_for_measurement_total_seconds": 72.77629148773849
+      },
+      "warmup_steps": 1000,
+      "versions": {
+        "torch": "2.8.0+cu128",
+        "mujoco": "3.12.0",
+        "mujoco-warp": "3.12.0",
+        "warp-lang": "1.17.0",
+        "numpy": "2.3.2",
+        "newton": "1.6.0"
+      },
+      "cache_files_before": 60,
+      "source_sha256": {
+        "scripts/benchmark_engines.py": "5ff33c29e8000123dc86e8b53fe09ebd2853c2f4f781e236c0fd16ab356b9762",
+        "scripts/prepare_standing.py": "dd6d4253ecd99f7219f6046c98109caa530d9879e86c7d116fa46dbd73b7d4ef",
+        "scripts/benchmark_newton_avbd.py": "b9de6245fabe6a7a9a2a00dc51b3644d8fd69d3708b23c5013dcbbeebd35f663"
+      },
+      "native_binary_sha256": null,
+      "asset_commit": "1e79c29c97d8b38aee9eefde77a545860ba7658e",
+      "model_sha256": "b6b7bd86cd2de2478fa281d4f016d2a0cdc13c9de6a7554617e352e501d4c2de",
+      "original_report_sha256": "0c80a5d0f0a905ec2d0771ce4e0115150a6cb7d593638f97be7505a9d51b1f67",
+      "execution_repeatability": {
+        "policy": "report",
+        "reset_initial_state_bitwise_verified": true,
+        "direct_repeat": {
+          "body_q": {
+            "bitwise_equal": false,
+            "allclose_rtol_1e_5_atol_1e_7": false,
+            "max_abs_difference": 0.00022915005683898926,
+            "max_position_vector_difference_m": 1.744015560773254e-05,
+            "max_quaternion_component_difference": 0.00022915005683898926
+          },
+          "body_qd": {
+            "bitwise_equal": false,
+            "allclose_rtol_1e_5_atol_1e_7": false,
+            "max_abs_difference": 0.27213952131569386,
+            "max_linear_velocity_vector_difference_m_s": 0.006744430593386969,
+            "max_angular_velocity_vector_difference_rad_s": 0.27369375600932333
+          }
+        },
+        "direct_chunk": {
+          "body_q": {
+            "bitwise_equal": false,
+            "allclose_rtol_1e_5_atol_1e_7": false,
+            "max_abs_difference": 0.00022912025451660156,
+            "max_position_vector_difference_m": 1.614214916637704e-05,
+            "max_quaternion_component_difference": 0.00022912025451660156
+          },
+          "body_qd": {
+            "bitwise_equal": false,
+            "allclose_rtol_1e_5_atol_1e_7": false,
+            "max_abs_difference": 0.26009232364594936,
+            "max_linear_velocity_vector_difference_m_s": 0.006475417842452361,
+            "max_angular_velocity_vector_difference_rad_s": 0.260492415713574
+          }
+        }
+      },
+      "all_trial_states_finite": true
+    },
+    {
+      "group": "main",
+      "run_id": "gpu-20260927-111219-345972",
+      "engine": "newton-avbd",
+      "num_envs": 512,
+      "gpu_seconds": [
+        1.0668050537109375,
+        1.06684619140625,
+        1.0668175048828126,
+        1.0666793212890624,
+        1.066681396484375
+      ],
+      "median_gpu_seconds": 1.0668050537109375,
+      "env_steps_per_second": 95987.54678166944,
+      "gpu_time_cv_percent": 0.006665460369105949,
+      "initialization_seconds": 26.80159740522504,
+      "initialization_phases_seconds": {
+        "imports_seconds": 1.3951541613787413,
+        "cuda_context_seconds": 0.26653270423412323,
+        "asset_compile_export_seconds": 0.9084576573222876,
+        "engine_import_runtime_seconds": 0.9894675761461258,
+        "model_data_control_allocation_seconds": 17.17623469606042,
+        "pre_first_step_total_seconds": 20.73602402023971,
+        "first_reset_and_chunk_compile_seconds": 5.223677296191454,
+        "graph_capture_and_first_launch_seconds": 0.8418960887938738,
+        "full_trajectory_preflight_seconds": 16.31427021510899,
+        "warmup_seconds": 10.675020130351186,
+        "warmup_gpu_seconds": 10.668287841796875,
+        "ready_for_measurement_total_seconds": 53.79117305018008
+      },
+      "warmup_steps": 2000,
+      "versions": {
+        "torch": "2.8.0+cu128",
+        "mujoco": "3.12.0",
+        "mujoco-warp": "3.12.0",
+        "warp-lang": "1.17.0",
+        "numpy": "2.3.2",
+        "newton": "1.6.0"
+      },
+      "cache_files_before": 0,
+      "source_sha256": {
+        "scripts/benchmark_engines.py": "5ff33c29e8000123dc86e8b53fe09ebd2853c2f4f781e236c0fd16ab356b9762",
+        "scripts/prepare_standing.py": "dd6d4253ecd99f7219f6046c98109caa530d9879e86c7d116fa46dbd73b7d4ef",
+        "scripts/benchmark_newton_avbd.py": "b9de6245fabe6a7a9a2a00dc51b3644d8fd69d3708b23c5013dcbbeebd35f663"
+      },
+      "native_binary_sha256": null,
+      "asset_commit": "1e79c29c97d8b38aee9eefde77a545860ba7658e",
+      "model_sha256": "b6b7bd86cd2de2478fa281d4f016d2a0cdc13c9de6a7554617e352e501d4c2de",
+      "original_report_sha256": "e3708ea9352d80aeb632e0b32d3d208ba37e040bc8a3d332af35abda9791f2b2",
+      "execution_repeatability": {
+        "policy": "report",
+        "reset_initial_state_bitwise_verified": true,
+        "direct_repeat": {
+          "body_q": {
+            "bitwise_equal": false,
+            "allclose_rtol_1e_5_atol_1e_7": false,
+            "max_abs_difference": 0.0001784492051228881,
+            "max_position_vector_difference_m": 1.3658079004572743e-05,
+            "max_quaternion_component_difference": 0.0001784492051228881
+          },
+          "body_qd": {
+            "bitwise_equal": false,
+            "allclose_rtol_1e_5_atol_1e_7": false,
+            "max_abs_difference": 0.25899818912148476,
+            "max_linear_velocity_vector_difference_m_s": 0.006441763311356695,
+            "max_angular_velocity_vector_difference_rad_s": 0.2595034365500054
+          }
+        },
+        "direct_chunk": {
+          "body_q": {
+            "bitwise_equal": false,
+            "allclose_rtol_1e_5_atol_1e_7": false,
+            "max_abs_difference": 0.00020062923431396484,
+            "max_position_vector_difference_m": 1.3011467922885605e-05,
+            "max_quaternion_component_difference": 0.00020062923431396484
+          },
+          "body_qd": {
+            "bitwise_equal": false,
+            "allclose_rtol_1e_5_atol_1e_7": false,
+            "max_abs_difference": 0.2565914038568735,
+            "max_linear_velocity_vector_difference_m_s": 0.006267764726748966,
+            "max_angular_velocity_vector_difference_rad_s": 0.2568075137487999
+          }
+        }
+      },
+      "all_trial_states_finite": true
+    },
+    {
+      "group": "no_extra_work",
+      "run_id": "gpu-20260927-112157-773906",
+      "engine": "newton-avbd",
+      "num_envs": 4096,
+      "gpu_seconds": [
+        3.097058349609375,
+        3.0963916015625,
+        3.096341552734375,
+        3.09616845703125,
+        3.099022216796875
+      ],
+      "median_gpu_seconds": 3.0963916015625,
+      "env_steps_per_second": 264566.01922916196,
+      "gpu_time_cv_percent": 0.034134797144206655,
+      "initialization_seconds": 20.621105631813407,
+      "initialization_phases_seconds": {
+        "imports_seconds": 1.4085158333182335,
+        "cuda_context_seconds": 0.2567658517509699,
+        "asset_compile_export_seconds": 0.9058125670999289,
+        "engine_import_runtime_seconds": 0.9929252676665783,
+        "model_data_control_allocation_seconds": 15.279702050611377,
+        "pre_first_step_total_seconds": 18.84389302134514,
+        "first_reset_and_chunk_compile_seconds": 0.7318207696080208,
+        "graph_capture_and_first_launch_seconds": 1.0453918408602476,
+        "full_trajectory_preflight_seconds": 34.281580068171024,
+        "warmup_seconds": 15.469537125900388,
+        "warmup_gpu_seconds": 15.46508837890625,
+        "ready_for_measurement_total_seconds": 70.37256928905845
+      },
+      "warmup_steps": 1000,
+      "versions": {
+        "torch": "2.8.0+cu128",
+        "mujoco": "3.12.0",
+        "mujoco-warp": "3.12.0",
+        "warp-lang": "1.17.0",
+        "numpy": "2.3.2",
+        "newton": "1.6.0"
+      },
+      "cache_files_before": 57,
+      "source_sha256": {
+        "scripts/benchmark_engines.py": "2431d244a7a597634c4f0ec656962d49031191820810c5c427ddddb4850ef0e7",
+        "scripts/prepare_standing.py": "dd6d4253ecd99f7219f6046c98109caa530d9879e86c7d116fa46dbd73b7d4ef",
+        "scripts/benchmark_newton_avbd.py": "14bb15e5b4db2cae1292dddc0c54ac3feed7995e401f50790c5e27e49847ab23"
+      },
+      "native_binary_sha256": null,
+      "asset_commit": "1e79c29c97d8b38aee9eefde77a545860ba7658e",
+      "model_sha256": "b6b7bd86cd2de2478fa281d4f016d2a0cdc13c9de6a7554617e352e501d4c2de",
+      "original_report_sha256": "53b51cb2a0af7203540cf11a67d40ce87046d8a6f4885ad6fcf37c31279551e3",
+      "execution_repeatability": {
+        "policy": "report",
+        "reset_initial_state_bitwise_verified": true,
+        "direct_repeat": {
+          "body_q": {
+            "bitwise_equal": false,
+            "allclose_rtol_1e_5_atol_1e_7": false,
+            "max_abs_difference": 0.00021353363990783691,
+            "max_position_vector_difference_m": 1.6543782589446948e-05,
+            "max_quaternion_component_difference": 0.00021353363990783691
+          },
+          "body_qd": {
+            "bitwise_equal": false,
+            "allclose_rtol_1e_5_atol_1e_7": false,
+            "max_abs_difference": 0.2590862661600113,
+            "max_linear_velocity_vector_difference_m_s": 0.006450306696788121,
+            "max_angular_velocity_vector_difference_rad_s": 0.259429215823133
+          }
+        },
+        "direct_chunk": {
+          "body_q": {
+            "bitwise_equal": false,
+            "allclose_rtol_1e_5_atol_1e_7": false,
+            "max_abs_difference": 0.00022123754024505615,
+            "max_position_vector_difference_m": 1.7971159928639994e-05,
+            "max_quaternion_component_difference": 0.00022123754024505615
+          },
+          "body_qd": {
+            "bitwise_equal": false,
+            "allclose_rtol_1e_5_atol_1e_7": false,
+            "max_abs_difference": 0.27055947855114937,
+            "max_linear_velocity_vector_difference_m_s": 0.006698758574736371,
+            "max_angular_velocity_vector_difference_rad_s": 0.2718737549780982
+          }
+        }
+      },
+      "all_trial_states_finite": true
+    },
+    {
+      "group": "no_extra_work",
+      "run_id": "gpu-20260927-112157-773906",
+      "engine": "newton-avbd",
+      "num_envs": 512,
+      "gpu_seconds": [
+        1.0608629150390625,
+        1.0611680908203125,
+        1.0619105224609375,
+        1.062736572265625,
+        1.0627542724609376
+      ],
+      "median_gpu_seconds": 1.0619105224609375,
+      "env_steps_per_second": 96429.97016612273,
+      "gpu_time_cv_percent": 0.07343083706712306,
+      "initialization_seconds": 26.916146840900183,
+      "initialization_phases_seconds": {
+        "imports_seconds": 1.4000897984951735,
+        "cuda_context_seconds": 0.2549718301743269,
+        "asset_compile_export_seconds": 0.9116830546408892,
+        "engine_import_runtime_seconds": 0.9932491686195135,
+        "model_data_control_allocation_seconds": 18.290282972157,
+        "pre_first_step_total_seconds": 21.8504520598799,
+        "first_reset_and_chunk_compile_seconds": 4.20916984975338,
+        "graph_capture_and_first_launch_seconds": 0.8565249312669039,
+        "full_trajectory_preflight_seconds": 16.786199735477567,
+        "warmup_seconds": 10.617439361289144,
+        "warmup_gpu_seconds": 10.61035546875,
+        "ready_for_measurement_total_seconds": 54.32008163817227
+      },
+      "warmup_steps": 2000,
+      "versions": {
+        "torch": "2.8.0+cu128",
+        "mujoco": "3.12.0",
+        "mujoco-warp": "3.12.0",
+        "warp-lang": "1.17.0",
+        "numpy": "2.3.2",
+        "newton": "1.6.0"
+      },
+      "cache_files_before": 0,
+      "source_sha256": {
+        "scripts/benchmark_engines.py": "2431d244a7a597634c4f0ec656962d49031191820810c5c427ddddb4850ef0e7",
+        "scripts/prepare_standing.py": "dd6d4253ecd99f7219f6046c98109caa530d9879e86c7d116fa46dbd73b7d4ef",
+        "scripts/benchmark_newton_avbd.py": "14bb15e5b4db2cae1292dddc0c54ac3feed7995e401f50790c5e27e49847ab23"
+      },
+      "native_binary_sha256": null,
+      "asset_commit": "1e79c29c97d8b38aee9eefde77a545860ba7658e",
+      "model_sha256": "b6b7bd86cd2de2478fa281d4f016d2a0cdc13c9de6a7554617e352e501d4c2de",
+      "original_report_sha256": "fc34194bbaa83c712868b77d1095bacf66a160f94661f7fa0953dd49b0a09939",
+      "execution_repeatability": {
+        "policy": "report",
+        "reset_initial_state_bitwise_verified": true,
+        "direct_repeat": {
+          "body_q": {
+            "bitwise_equal": false,
+            "allclose_rtol_1e_5_atol_1e_7": false,
+            "max_abs_difference": 0.0001712590456008911,
+            "max_position_vector_difference_m": 1.5282549912896412e-05,
+            "max_quaternion_component_difference": 0.0001712590456008911
+          },
+          "body_qd": {
+            "bitwise_equal": false,
+            "allclose_rtol_1e_5_atol_1e_7": false,
+            "max_abs_difference": 0.2470276248641312,
+            "max_linear_velocity_vector_difference_m_s": 0.006005109292224048,
+            "max_angular_velocity_vector_difference_rad_s": 0.24713073598965732
+          }
+        },
+        "direct_chunk": {
+          "body_q": {
+            "bitwise_equal": false,
+            "allclose_rtol_1e_5_atol_1e_7": false,
+            "max_abs_difference": 0.0002053380012512207,
+            "max_position_vector_difference_m": 1.4663618096030379e-05,
+            "max_quaternion_component_difference": 0.0002053380012512207
+          },
+          "body_qd": {
+            "bitwise_equal": false,
+            "allclose_rtol_1e_5_atol_1e_7": false,
+            "max_abs_difference": 0.2586268652230501,
+            "max_linear_velocity_vector_difference_m_s": 0.006441022173799166,
+            "max_angular_velocity_vector_difference_rad_s": 0.2591302419069974
+          }
+        }
+      },
+      "all_trial_states_finite": true
+    },
+    {
+      "group": "contact_history",
+      "run_id": "gpu-20260927-112728-918832",
+      "engine": "newton-avbd",
+      "num_envs": 4096,
+      "gpu_seconds": [
+        3.0523330078125,
+        3.05240576171875,
+        3.052199951171875,
+        3.0525869140625,
+        3.052601318359375
+      ],
+      "median_gpu_seconds": 3.05240576171875,
+      "env_steps_per_second": 268378.4738824253,
+      "gpu_time_cv_percent": 0.005006798936906361,
+      "initialization_seconds": 20.789964221417904,
+      "initialization_phases_seconds": {
+        "imports_seconds": 1.40391574986279,
+        "cuda_context_seconds": 0.25636669248342514,
+        "asset_compile_export_seconds": 0.9318969920277596,
+        "engine_import_runtime_seconds": 0.997688265517354,
+        "model_data_control_allocation_seconds": 15.409380098804832,
+        "pre_first_step_total_seconds": 18.9994252640754,
+        "first_reset_and_chunk_compile_seconds": 0.7329164203256369,
+        "graph_capture_and_first_launch_seconds": 1.0576225370168686,
+        "full_trajectory_preflight_seconds": 33.824392914772034,
+        "warmup_seconds": 15.248263847082853,
+        "warmup_gpu_seconds": 15.244474609374999,
+        "ready_for_measurement_total_seconds": 69.86290594749153
+      },
+      "warmup_steps": 1000,
+      "versions": {
+        "torch": "2.8.0+cu128",
+        "mujoco": "3.12.0",
+        "mujoco-warp": "3.12.0",
+        "warp-lang": "1.17.0",
+        "numpy": "2.3.2",
+        "newton": "1.6.0"
+      },
+      "cache_files_before": 63,
+      "source_sha256": {
+        "scripts/benchmark_engines.py": "2431d244a7a597634c4f0ec656962d49031191820810c5c427ddddb4850ef0e7",
+        "scripts/prepare_standing.py": "dd6d4253ecd99f7219f6046c98109caa530d9879e86c7d116fa46dbd73b7d4ef",
+        "scripts/benchmark_newton_avbd.py": "b2955f88f3cb55fa37e04bbc24bab224dce2ea4b6c6930dd1c53f896ad7d327b"
+      },
+      "native_binary_sha256": null,
+      "asset_commit": "1e79c29c97d8b38aee9eefde77a545860ba7658e",
+      "model_sha256": "b6b7bd86cd2de2478fa281d4f016d2a0cdc13c9de6a7554617e352e501d4c2de",
+      "original_report_sha256": "4b5d675ae3c6a51a3120fd84814086f486225b59fae9a01f60b5496be339a758",
+      "execution_repeatability": {
+        "policy": "report",
+        "reset_initial_state_bitwise_verified": true,
+        "direct_repeat": {
+          "body_q": {
+            "bitwise_equal": false,
+            "allclose_rtol_1e_5_atol_1e_7": false,
+            "max_abs_difference": 0.00014212727546691895,
+            "max_position_vector_difference_m": 1.1582004973132224e-05,
+            "max_quaternion_component_difference": 0.00014212727546691895
+          },
+          "body_qd": {
+            "bitwise_equal": false,
+            "allclose_rtol_1e_5_atol_1e_7": false,
+            "max_abs_difference": 0.038630540715530515,
+            "max_linear_velocity_vector_difference_m_s": 0.0011078374536445989,
+            "max_angular_velocity_vector_difference_rad_s": 0.05048678719261472
+          }
+        },
+        "direct_chunk": {
+          "body_q": {
+            "bitwise_equal": false,
+            "allclose_rtol_1e_5_atol_1e_7": false,
+            "max_abs_difference": 0.0001405477523803711,
+            "max_position_vector_difference_m": 1.136005287378612e-05,
+            "max_quaternion_component_difference": 0.0001405477523803711
+          },
+          "body_qd": {
+            "bitwise_equal": false,
+            "allclose_rtol_1e_5_atol_1e_7": false,
+            "max_abs_difference": 0.03715957165695727,
+            "max_linear_velocity_vector_difference_m_s": 0.0010009113486090528,
+            "max_angular_velocity_vector_difference_rad_s": 0.04724826898339467
+          }
+        }
+      },
+      "all_trial_states_finite": true
+    },
+    {
+      "group": "contact_history",
+      "run_id": "gpu-20260927-112728-918832",
+      "engine": "newton-avbd",
+      "num_envs": 512,
+      "gpu_seconds": [
+        1.0668143310546876,
+        1.0673653564453125,
+        1.068474365234375,
+        1.0684873046875,
+        1.0686290283203126
+      ],
+      "median_gpu_seconds": 1.068474365234375,
+      "env_steps_per_second": 95837.58238087264,
+      "gpu_time_cv_percent": 0.06824849848207305,
+      "initialization_seconds": 26.866024896502495,
+      "initialization_phases_seconds": {
+        "imports_seconds": 1.40018499083817,
+        "cuda_context_seconds": 0.2603350803256035,
+        "asset_compile_export_seconds": 0.9095694981515408,
+        "engine_import_runtime_seconds": 1.0224620271474123,
+        "model_data_control_allocation_seconds": 17.898765236139297,
+        "pre_first_step_total_seconds": 21.491505227982998,
+        "first_reset_and_chunk_compile_seconds": 4.476591536775231,
+        "graph_capture_and_first_launch_seconds": 0.8979281317442656,
+        "full_trajectory_preflight_seconds": 17.000186067074537,
+        "warmup_seconds": 10.673801984637976,
+        "warmup_gpu_seconds": 10.667642456054688,
+        "ready_for_measurement_total_seconds": 54.5404402539134
+      },
+      "warmup_steps": 2000,
+      "versions": {
+        "torch": "2.8.0+cu128",
+        "mujoco": "3.12.0",
+        "mujoco-warp": "3.12.0",
+        "warp-lang": "1.17.0",
+        "numpy": "2.3.2",
+        "newton": "1.6.0"
+      },
+      "cache_files_before": 0,
+      "source_sha256": {
+        "scripts/benchmark_engines.py": "2431d244a7a597634c4f0ec656962d49031191820810c5c427ddddb4850ef0e7",
+        "scripts/prepare_standing.py": "dd6d4253ecd99f7219f6046c98109caa530d9879e86c7d116fa46dbd73b7d4ef",
+        "scripts/benchmark_newton_avbd.py": "b2955f88f3cb55fa37e04bbc24bab224dce2ea4b6c6930dd1c53f896ad7d327b"
+      },
+      "native_binary_sha256": null,
+      "asset_commit": "1e79c29c97d8b38aee9eefde77a545860ba7658e",
+      "model_sha256": "b6b7bd86cd2de2478fa281d4f016d2a0cdc13c9de6a7554617e352e501d4c2de",
+      "original_report_sha256": "9e250db649d4dc0a5d864eb04e5a9ccfe5f3ebbfcc2841315f7e541220cbaf40",
+      "execution_repeatability": {
+        "policy": "report",
+        "reset_initial_state_bitwise_verified": true,
+        "direct_repeat": {
+          "body_q": {
+            "bitwise_equal": false,
+            "allclose_rtol_1e_5_atol_1e_7": false,
+            "max_abs_difference": 0.00013265013694763184,
+            "max_position_vector_difference_m": 1.0803486420287576e-05,
+            "max_quaternion_component_difference": 0.00013265013694763184
+          },
+          "body_qd": {
+            "bitwise_equal": false,
+            "allclose_rtol_1e_5_atol_1e_7": false,
+            "max_abs_difference": 0.03600783529691398,
+            "max_linear_velocity_vector_difference_m_s": 0.0009801142022100248,
+            "max_angular_velocity_vector_difference_rad_s": 0.045671713068696496
+          }
+        },
+        "direct_chunk": {
+          "body_q": {
+            "bitwise_equal": false,
+            "allclose_rtol_1e_5_atol_1e_7": false,
+            "max_abs_difference": 0.00013062357902526855,
+            "max_position_vector_difference_m": 1.0691088643690085e-05,
+            "max_quaternion_component_difference": 0.00013062357902526855
+          },
+          "body_qd": {
+            "bitwise_equal": false,
+            "allclose_rtol_1e_5_atol_1e_7": false,
+            "max_abs_difference": 0.037680754205212,
+            "max_linear_velocity_vector_difference_m_s": 0.0010726576114225455,
+            "max_angular_velocity_vector_difference_rad_s": 0.04942805327431362
+          }
+        }
+      },
+      "all_trial_states_finite": true
+    }
+  ]
+}
