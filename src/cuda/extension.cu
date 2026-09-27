@@ -10,12 +10,12 @@
 #include <type_traits>
 #define DUCK_NAMESPACE gpu32
 #define DUCK_SCALAR float
-#include "kernel.inl"
+#include "kernel.cuh"
 #undef DUCK_NAMESPACE
 #undef DUCK_SCALAR
 #define DUCK_NAMESPACE gpu64
 #define DUCK_SCALAR double
-#include "kernel.inl"
+#include "kernel.cuh"
 #undef DUCK_NAMESPACE
 #undef DUCK_SCALAR
 
@@ -48,14 +48,42 @@ __global__ void resetStates(S *states, const typename S::ModelType *model,
   s.initialize(model, points);
   s.resetPose(q + e * model->joints.size(), roots + e * 6);
 }
-template <class S>
+// Compact MicroDuck states can stay on chip for all AVBD iterations/substeps.
+// Copy cooperatively; solver arithmetic and its per-environment order are unchanged.
+template <class S, bool Shared>
+__device__ S &loadWorkingState(S *states, int e, unsigned char *storage) {
+  if constexpr (Shared) {
+    static_assert(std::is_trivially_copyable_v<S>);
+    auto *dst = reinterpret_cast<unsigned char *>(storage);
+    auto *src = reinterpret_cast<const unsigned char *>(states + e);
+    for (int i = threadIdx.x; i < sizeof(S); i += blockDim.x)
+      dst[i] = src[i];
+    __syncthreads();
+    return *reinterpret_cast<S *>(storage);
+  } else {
+    return states[e];
+  }
+}
+template <class S, bool Shared>
+__device__ void storeWorkingState(S *states, int e, unsigned char *storage) {
+  if constexpr (Shared) {
+    __syncthreads();
+    auto *dst = reinterpret_cast<unsigned char *>(states + e);
+    auto *src = reinterpret_cast<const unsigned char *>(storage);
+    for (int i = threadIdx.x; i < sizeof(S); i += blockDim.x)
+      dst[i] = src[i];
+  }
+}
+
+template <class S, bool Shared = false>
 __global__ void advance(S *states, int count, const typename S::Scalar *targets,
                         const typename S::Scalar *forces, int substeps,
                         typename S::Scalar kp, typename S::Scalar limit) {
   int e = blockIdx.x;
   if (e >= count)
     return;
-  auto &s = states[e];
+  extern __shared__ __align__(16) unsigned char workspace[];
+  auto &s = loadWorkingState<S, Shared>(states, e, workspace);
   if (threadIdx.x == 0) {
     for (int j = 0; j < s.joints.size(); ++j)
       if (!isfinite(targets[e * s.joints.size() + j]))
@@ -65,18 +93,37 @@ __global__ void advance(S *states, int count, const typename S::Scalar *targets,
         s.failed = 1;
   }
   __syncthreads();
-  if (s.failed)
+  if (s.failed) {
+    storeWorkingState<S, Shared>(states, e, workspace);
     return;
+  }
   if (threadIdx.x == 0) {
     for (int j = 0; j < s.joints.size(); ++j) {
       s.joints[j].target = targets[e * s.joints.size() + j];
       s.joints[j].kp = kp;
       s.joints[j].maxTorque = limit;
+      s.joints[j].torque = s.model->joints[j].torque;
+      s.joints[j].frictionloss = s.model->joints[j].frictionloss;
+      s.joints[j].damping = s.model->joints[j].damping;
     }
     s.bodies[1].force = {forces[3 * e], forces[3 * e + 1], forces[3 * e + 2]};
   }
   __syncthreads();
   s.advance(substeps);
+  storeWorkingState<S, Shared>(states, e, workspace);
+}
+template <class S, bool Shared = false>
+__global__ void advanceMotor(S *states, const typename S::Scalar *motor,
+                             const typename S::Scalar *forces) {
+  int e = blockIdx.x;
+  extern __shared__ __align__(16) unsigned char workspace[];
+  auto &s = loadWorkingState<S, Shared>(states, e, workspace);
+  if (threadIdx.x == 0)
+    s.setMotor(motor + e * s.joints.size() * 3, forces + e * 3);
+  __syncthreads();
+  if (!s.failed)
+    s.advance(1);
+  storeWorkingState<S, Shared>(states, e, workspace);
 }
 template <class S>
 __global__ void snapshot(const S *states, int count, typename S::Scalar *bodies,
@@ -91,23 +138,55 @@ __global__ void snapshot(const S *states, int count, typename S::Scalar *bodies,
 }
 template <class S>
 __global__ void groundForces(const S *states, int count,
-                             typename S::Scalar *out) {
+                             typename S::Scalar *out, bool groundOnly) {
   int e = blockIdx.x * blockDim.x + threadIdx.x;
   if (e < count)
-    states[e].contactForces(out + e * states[e].bodies.size() * 3);
+    states[e].contactForces(out + e * states[e].bodies.size() * 3, groundOnly);
+}
+template <class S>
+__global__ void selfContactStatsKernel(const S *states, int count,
+                                       typename S::Scalar *out) {
+  int e = blockIdx.x * blockDim.x + threadIdx.x;
+  if (e < count)
+    states[e].selfContactStats(out + 2 * e);
+}
+template <class S>
+__global__ void contactCountsKernel(const S *states, int count,
+                                     typename S::Scalar *out) {
+  int e = blockIdx.x * blockDim.x + threadIdx.x;
+  if (e < count)
+    states[e].contactCounts(out + 2 * e);
 }
 struct Interface {
   virtual ~Interface() = default;
   virtual void reset(torch::Tensor, torch::Tensor, torch::Tensor) = 0;
   virtual void step(torch::Tensor, torch::Tensor, int, double, double) = 0;
+  virtual void stepMotor(torch::Tensor, torch::Tensor) = 0;
   virtual std::vector<torch::Tensor> state() = 0;
-  virtual torch::Tensor contactForces() = 0;
+  virtual torch::Tensor contactForces(bool) = 0;
+  virtual torch::Tensor selfContactStats() = 0;
+  virtual torch::Tensor contactCounts() = 0;
+  virtual torch::Tensor generalizedLoads(torch::Tensor) = 0;
   virtual std::vector<torch::Tensor> reference(torch::Tensor, torch::Tensor,
                                                int, double, double) = 0;
   virtual std::vector<std::string> names() = 0;
 };
 
+template <class S>
+__global__ void generalizedLoadsKernel(const S *states,
+                                       const typename S::Scalar *offset,
+                                       typename S::Scalar *out, int count) {
+  int e = blockIdx.x * blockDim.x + threadIdx.x;
+  if (e < count) {
+    auto p = offset + 3 * e;
+    states[e].generalizedLoads({p[0], p[1], p[2]},
+                               out + 3 * e * states[e].joints.size());
+  }
+}
+
 template <class S> class Batch final : public Interface {
+  static constexpr bool compact = S::bodyCapacity == 16;
+  bool sharedMemory;
   using Real = typename S::Scalar;
   using Model = typename S::ModelType;
   using Point = typename S::Point;
@@ -134,8 +213,8 @@ template <class S> class Batch final : public Interface {
   }
 
 public:
-  Batch(std::string path, int n, double dt, int iterations, int gpu)
-      : count(n), device(gpu),
+  Batch(std::string path, int n, double dt, int iterations, int gpu, bool shared = false)
+      : sharedMemory(shared), count(n), device(gpu),
         dtype(std::is_same_v<Real, float> ? torch::kFloat32 : torch::kFloat64) {
     TORCH_CHECK(n > 0 && n <= 65536 && dt > 0 && std::isfinite(dt) &&
                     iterations > 0,
@@ -143,6 +222,26 @@ public:
     c10::cuda::CUDAGuard guard(device);
     original.load(path);
     duck_native::convert<S>(original, hostModel, hostPoints, dt, iterations);
+    if constexpr (compact) {
+      TORCH_CHECK(original.bodies.size() == 16 && original.joints.size() == 14,
+                  "MicroDuck specialized backend requires 16 bodies and 14 hinges");
+      const char *expected[] = {
+          "left_hip_yaw", "left_hip_roll", "left_hip_pitch", "left_knee", "left_ankle",
+          "neck_pitch", "head_pitch", "head_yaw", "head_roll",
+          "right_hip_yaw", "right_hip_roll", "right_hip_pitch", "right_knee", "right_ankle"};
+      for (int i = 0; i < 14; ++i) {
+        const auto &label = original.joints[i].name;
+        const auto name = label.rfind("robot/", 0) == 0 ? label.substr(6) : label;
+        TORCH_CHECK(name == expected[i], "Unsupported MicroDuck joint layout");
+      }
+    }
+    if (sharedMemory) {
+      int maxShared = 0;
+      C10_CUDA_CHECK(cudaDeviceGetAttribute(&maxShared, cudaDevAttrMaxSharedMemoryPerBlockOptin, device));
+      TORCH_CHECK(sizeof(S) <= size_t(maxShared), "Device shared memory is too small for MicroDuck state");
+      C10_CUDA_CHECK(cudaFuncSetAttribute(advance<S, true>, cudaFuncAttributeMaxDynamicSharedMemorySize, sizeof(S)));
+      C10_CUDA_CHECK(cudaFuncSetAttribute(advanceMotor<S, true>, cudaFuncAttributeMaxDynamicSharedMemorySize, sizeof(S)));
+    }
     auto byteOptions = torch::TensorOptions()
                            .dtype(torch::kUInt8)
                            .device(torch::kCUDA, device);
@@ -150,7 +249,7 @@ public:
     pointStorage = torch::empty(
         {int64_t(std::max<size_t>(1, hostPoints.size()) * sizeof(Point))},
         byteOptions);
-    stateStorage = torch::empty({int64_t(count * sizeof(S))}, byteOptions);
+    stateStorage = torch::zeros({int64_t(count * sizeof(S))}, byteOptions);
     C10_CUDA_CHECK(cudaMemcpyAsync(model(), &hostModel, sizeof(Model),
                                    cudaMemcpyHostToDevice, stream()));
     if (!hostPoints.empty())
@@ -188,13 +287,34 @@ public:
     c10::cuda::CUDAGuard guard(device);
     check(target, {count, hostModel.joints.size()}, dtype);
     check(forces, {count, 3}, dtype);
-    TORCH_CHECK(substeps > 0 && kp >= 0 && std::isfinite(kp) && limit > 0 &&
+    // Zero selects the solver's uncapped PD spring for the explicit common
+    // physics comparison. Negative and nonfinite caps remain invalid.
+    TORCH_CHECK(substeps > 0 && kp >= 0 && std::isfinite(kp) && limit >= 0 &&
                     std::isfinite(limit),
                 "Invalid controls");
     wait();
-    advance<<<count, 32, 0, stream()>>>(
-        states(), count, target.template data_ptr<Real>(),
-        forces.template data_ptr<Real>(), substeps, Real(kp), Real(limit));
+    if (sharedMemory)
+      advance<S, true><<<count, 32, sizeof(S), stream()>>>(
+          states(), count, target.template data_ptr<Real>(),
+          forces.template data_ptr<Real>(), substeps, Real(kp), Real(limit));
+    else
+      advance<S, false><<<count, 32, 0, stream()>>>(
+          states(), count, target.template data_ptr<Real>(),
+          forces.template data_ptr<Real>(), substeps, Real(kp), Real(limit));
+    C10_CUDA_KERNEL_LAUNCH_CHECK();
+    record();
+  }
+  void stepMotor(torch::Tensor motor, torch::Tensor forces) override {
+    c10::cuda::CUDAGuard guard(device);
+    check(motor, {count, hostModel.joints.size(), 3}, dtype);
+    check(forces, {count, 3}, dtype);
+    wait();
+    if (sharedMemory)
+      advanceMotor<S, true><<<count, 32, sizeof(S), stream()>>>(states(),
+          motor.template data_ptr<Real>(), forces.template data_ptr<Real>());
+    else
+      advanceMotor<S, false><<<count, 32, 0, stream()>>>(states(),
+          motor.template data_ptr<Real>(), forces.template data_ptr<Real>());
     C10_CUDA_KERNEL_LAUNCH_CHECK();
     record();
   }
@@ -213,14 +333,51 @@ public:
     record();
     return {b, j, d};
   }
-  torch::Tensor contactForces() override {
+  torch::Tensor contactForces(bool groundOnly) override {
     c10::cuda::CUDAGuard guard(device);
     auto out = torch::empty(
         {count, hostModel.bodies.size(), 3},
         torch::TensorOptions().dtype(dtype).device(torch::kCUDA, device));
     wait();
     groundForces<<<(count + 31) / 32, 32, 0, stream()>>>(
+        states(), count, out.template data_ptr<Real>(), groundOnly);
+    C10_CUDA_KERNEL_LAUNCH_CHECK();
+    record();
+    return out;
+  }
+  torch::Tensor selfContactStats() override {
+    c10::cuda::CUDAGuard guard(device);
+    auto out = torch::empty(
+        {count, 2},
+        torch::TensorOptions().dtype(dtype).device(torch::kCUDA, device));
+    wait();
+    selfContactStatsKernel<<<(count + 31) / 32, 32, 0, stream()>>>(
         states(), count, out.template data_ptr<Real>());
+    C10_CUDA_KERNEL_LAUNCH_CHECK();
+    record();
+    return out;
+  }
+  torch::Tensor contactCounts() override {
+    c10::cuda::CUDAGuard guard(device);
+    auto out = torch::empty({count, 2},
+        torch::TensorOptions().dtype(dtype).device(torch::kCUDA, device));
+    wait();
+    contactCountsKernel<<<(count + 31) / 32, 32, 0, stream()>>>(
+        states(), count, out.template data_ptr<Real>());
+    C10_CUDA_KERNEL_LAUNCH_CHECK();
+    record();
+    return out;
+  }
+  torch::Tensor generalizedLoads(torch::Tensor offset) override {
+    c10::cuda::CUDAGuard guard(device);
+    check(offset, {count, 3}, dtype);
+    auto out = torch::empty(
+        {count, hostModel.joints.size(), 3},
+        torch::TensorOptions().dtype(dtype).device(torch::kCUDA, device));
+    wait();
+    generalizedLoadsKernel<<<(count + 31) / 32, 32, 0, stream()>>>(
+        states(), offset.template data_ptr<Real>(),
+        out.template data_ptr<Real>(), count);
     C10_CUDA_KERNEL_LAUNCH_CHECK();
     record();
     return out;
@@ -264,7 +421,13 @@ public:
   }
 };
 std::shared_ptr<Interface> makeBatch(std::string path, int n, double dt,
-                                     int iterations, int device, bool fp64) {
+                                     int iterations, int device, bool fp64, bool specialized, bool sharedMemory) {
+  TORCH_CHECK(specialized || !sharedMemory, "Shared memory requires the compact MicroDuck backend");
+  if (specialized) {
+    if (fp64)
+      return std::make_shared<Batch<gpu64::MicroDuckState>>(path, n, dt, iterations, device, sharedMemory);
+    return std::make_shared<Batch<gpu32::MicroDuckState>>(path, n, dt, iterations, device, sharedMemory);
+  }
   if (fp64)
     return std::make_shared<Batch<gpu64::State>>(path, n, dt, iterations,
                                                  device);
@@ -275,11 +438,16 @@ PYBIND11_MODULE(TORCH_EXTENSION_NAME, m) {
       .def(pybind11::init(&makeBatch), pybind11::arg("model"),
            pybind11::arg("num_envs"), pybind11::arg("dt") = .001,
            pybind11::arg("iterations") = 200, pybind11::arg("device") = 0,
-           pybind11::arg("fp64") = false)
+           pybind11::arg("fp64") = false, pybind11::arg("specialized") = false, pybind11::arg("shared_memory") = false)
       .def("reset", &Interface::reset)
       .def("step", &Interface::step)
+      .def("step_motor", &Interface::stepMotor)
       .def("state", &Interface::state)
-      .def("contact_forces", &Interface::contactForces)
+      .def("contact_forces", &Interface::contactForces,
+           pybind11::arg("ground_only") = false)
+      .def("self_contact_stats", &Interface::selfContactStats)
+      .def("contact_counts", &Interface::contactCounts)
+      .def("generalized_loads", &Interface::generalizedLoads)
       .def("reference", &Interface::reference)
       .def_property_readonly("joint_names", &Interface::names);
 }

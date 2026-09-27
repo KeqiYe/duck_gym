@@ -16,6 +16,14 @@ def build():
     build_dir.mkdir(parents=True, exist_ok=True)
     os.environ.setdefault("CUDA_HOME", "/usr/local/cuda-12.8")
     os.environ.setdefault("MAX_JOBS", "2")
+    float_math = os.environ.get("DUCK_NATIVE_FLOAT_MATH", "0")
+    if float_math not in ("0", "1"):
+        raise ValueError("DUCK_NATIVE_FLOAT_MATH must be 0 or 1")
+    unroll = os.environ.get("DUCK_UNROLL_SMALL_MATRICES", "0")
+    if unroll not in ("0", "1"):
+        raise ValueError("DUCK_UNROLL_SMALL_MATRICES must be 0 or 1")
+    defines = ["-DDUCK_NATIVE_FLOAT_MATH=" + float_math,
+               "-DDUCK_UNROLL_SMALL_MATRICES=" + unroll]
     return load(
         name="_duck_cuda",
         sources=[str(root / "src/cuda/extension.cu"), str(root / "src/solver.cpp")],
@@ -25,8 +33,8 @@ def build():
             str(build_dir.parents[1] / "cache/python-dev/usr/include"),
         ],
         build_directory=str(build_dir),
-        extra_cflags=["-O3", "-std=c++17"],
-        extra_cuda_cflags=["-O3", "-std=c++17", "--expt-relaxed-constexpr", "--fmad=false"],
+        extra_cflags=["-O3", "-std=c++17"] + defines,
+        extra_cuda_cflags=["-O3", "-std=c++17", "--expt-relaxed-constexpr", "--fmad=false"] + defines,
         verbose=True,
     )
 

@@ -3,6 +3,7 @@
 import json
 from pathlib import Path
 import argparse
+import xml.etree.ElementTree as ET
 import numpy as np
 import mujoco
 from model_io import ROOT, prepare_microduck, export_model
@@ -27,11 +28,33 @@ HOME = dict(
 )
 
 
-def prepare(output):
+def prepare(output, physics_profile="original"):
+    if physics_profile not in ("original", "avbd-common"):
+        raise ValueError("Unknown benchmark physics profile")
     output = Path(output)
     output.mkdir(parents=True, exist_ok=True)
     xml = prepare_microduck()
     m = mujoco.MjModel.from_xml_string(xml)
+    original_joint_physics = {
+        "armature": m.dof_armature.tolist(),
+        "frictionloss": m.dof_frictionloss.tolist(),
+        "damping": m.dof_damping.tolist(),
+        "motor_torque_limit_nm": 0.96,
+    }
+    if physics_profile == "avbd-common":
+        # Newton's rigid AVBD does not implement joint armature or dry friction.
+        # Author the same explicitly reduced physics in BOTH engine exports.
+        tree = ET.fromstring(xml)
+        for joint in tree.findall(".//joint"):
+            joint.set("armature", "0")
+            joint.set("frictionloss", "0")
+        xml = ET.tostring(tree, encoding="unicode")
+        common = mujoco.MjModel.from_xml_string(xml)
+        for field in ("body_mass", "body_inertia", "body_ipos", "body_iquat",
+                      "jnt_pos", "jnt_axis", "jnt_range", "dof_damping", "mesh_vert"):
+            assert np.array_equal(getattr(m, field), getattr(common, field)), field
+        assert not np.any(common.dof_armature) and not np.any(common.dof_frictionloss)
+        m = common
     d = mujoco.MjData(m)
     names = [m.joint(i).name for i in range(m.njnt) if m.jnt_type[i] == mujoco.mjtJoint.mjJNT_HINGE]
     assert set(names) == set(HOME)
@@ -60,7 +83,16 @@ def prepare(output):
         root_height=float(d.xipos[1, 2]),
         mass=float(m.body_mass.sum()),
         kp=0.55,
-        torque_limit=0.96,
+        torque_limit=0.0 if physics_profile == "avbd-common" else 0.96,
+        torque_limit_enabled=physics_profile != "avbd-common",
+        physics_profile=physics_profile,
+        original_joint_physics=original_joint_physics,
+        effective_joint_physics={
+            "armature": m.dof_armature.tolist(),
+            "frictionloss": m.dof_frictionloss.tolist(),
+            "damping": m.dof_damping.tolist(),
+            "motor_torque_limit_nm": None if physics_profile == "avbd-common" else 0.96,
+        },
         lower=[float(m.joint(n).range[0]) for n in names],
         upper=[float(m.joint(n).range[1]) for n in names],
         qpos=d.qpos.tolist(),

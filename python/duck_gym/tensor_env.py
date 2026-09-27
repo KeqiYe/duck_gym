@@ -36,11 +36,23 @@ class CpuAdapter:
     def step(self, target, forces, substeps, kp, limit):
         self.batch.step(target.numpy(), forces.numpy(), substeps, kp, limit)
 
+    def step_motor(self, motor, forces):
+        self.batch.step_motor(motor.numpy(), forces.numpy())
+
     def state(self):
         return tuple(torch.from_numpy(v) for v in self.batch.state())
 
-    def contact_forces(self):
-        return torch.from_numpy(self.batch.contact_forces())
+    def contact_forces(self, ground_only=False):
+        return torch.from_numpy(self.batch.contact_forces(ground_only))
+
+    def self_contact_stats(self):
+        return torch.from_numpy(self.batch.self_contact_stats())
+
+    def contact_counts(self):
+        return torch.from_numpy(self.batch.contact_counts())
+
+    def generalized_loads(self, root_com_offset):
+        return torch.from_numpy(self.batch.generalized_loads(root_com_offset.numpy()))
 
 
 class TensorEnv:

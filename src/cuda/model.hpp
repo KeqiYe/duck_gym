@@ -24,9 +24,20 @@ void convert(const duck::Solver &original, typename S::ModelType &hostModel,
   using Real = typename S::Scalar;
   using Point = typename S::Point;
   require(original.bodies.size() <= 32 && original.joints.size() <= 32 &&
-              original.shapes.size() <= 32,
+              original.shapes.size() <= 32 &&
+              original.collisionPairs.size() <= 32,
           "CUDA model capacity exceeded (32 bodies/joints/shapes)");
   require(original.bodies.size() > 1, "CUDA batch needs at least one body");
+  require(original.bodies.size() <= S::bodyCapacity &&
+              original.joints.size() <= S::jointCapacity,
+          "Model exceeds selected state body/joint capacity");
+  size_t maximumContacts = original.collisionPairs.size();
+  if (original.options.ground)
+    for (const auto &shape : original.shapes)
+      if (shape.ground && original.bodies[shape.body].mass > 0)
+        maximumContacts += 4;
+  require(maximumContacts <= S::contactCapacity,
+          "Model exceeds selected state contact capacity");
   hostModel.bodies.length = original.bodies.size();
   hostModel.joints.length = original.joints.size();
   hostModel.shapes.length = original.shapes.size();
@@ -78,10 +89,21 @@ void convert(const duck::Solver &original, typename S::ModelType &hostModel,
     require(original.bodies[j.a].mass == 0 || original.bodies[j.b].mass == 0 ||
                 hostModel.colors[j.a] != hostModel.colors[j.b],
             "Joint graph must be bipartite");
+  int adjacencySize = 0;
+  for (int bi = 0; bi < hostModel.bodies.size(); ++bi) {
+    hostModel.bodyJointOffsets[bi] = adjacencySize;
+    for (int ji = 0; ji < hostModel.joints.size(); ++ji) {
+      const auto &j = hostModel.joints[ji];
+      if (j.a == bi || j.b == bi)
+        hostModel.bodyJointIndices[adjacencySize++] = ji;
+    }
+  }
+  hostModel.bodyJointOffsets[hostModel.bodies.size()] = adjacencySize;
   for (int i = 0; i < hostModel.shapes.size(); ++i) {
     auto &d = hostModel.shapes[i];
     auto &s = original.shapes[i];
     d.body = s.body;
+    d.ground = s.ground;
     d.type = s.type;
     setVec(d.center, s.center);
     setVec(d.size, s.size);
@@ -90,11 +112,27 @@ void convert(const duck::Solver &original, typename S::ModelType &hostModel,
     d.boundingRadius = s.boundingRadius;
     d.offset = hostPoints.size();
     d.count = s.type == 0 ? 1 : (s.type == 2 ? 2 : s.localPoints.size());
+    duck::Vec3 interior = s.center;
+    if (!s.localPoints.empty()) {
+      interior = {};
+      for (auto p : s.localPoints)
+        interior += p;
+      interior = interior / double(s.localPoints.size());
+    }
+    setVec(d.interior, interior);
     for (auto p : s.localPoints) {
       Point v;
       setVec(v, p);
       hostPoints.push_back(v);
     }
+  }
+  hostModel.pairs.length = original.collisionPairs.size();
+  for (int i = 0; i < hostModel.pairs.size(); ++i) {
+    auto &d = hostModel.pairs[i];
+    auto &p = original.collisionPairs[i];
+    d.a = p.a;
+    d.b = p.b;
+    d.friction = p.friction;
   }
   hostModel.options.dt = dt;
   hostModel.options.iterations = iterations;

@@ -1,0 +1,16 @@
+{
+  "status": "diagnostic_command_adapter_not_an_accepted_policy",
+  "velocity_tau": 0.5,
+  "kp": 0.5,
+  "ki": 0.5,
+  "integral_limit": 0.2,
+  "antiwindup_tau": 0.5,
+  "heading_kp": 2.0,
+  "heading_kd": 0.1,
+  "command_limits": [
+    0.4,
+    0.3,
+    1.0
+  ],
+  "scope": "Lower-gain outer command feedback for native600 migration candidate; original controller caused larger one-second velocity oscillation after the inner policy learned near-target low-speed response. Experimental gains, not hardware parameters."
+}

@@ -28,6 +28,11 @@ struct Shape {
   double friction = 0.8;
   std::vector<Vec3> vertices, localPoints;
   double boundingRadius = 0;
+  bool ground = true;
+};
+struct CollisionPair {
+  int a = 0, b = 0; // shape indices
+  double friction = 0;
 };
 struct Contact {
   int body = 0, shape = 0, feature = 0;
@@ -54,6 +59,7 @@ public:
   std::vector<Body> bodies;
   std::vector<Joint> joints;
   std::vector<Shape> shapes;
+  std::vector<CollisionPair> collisionPairs;
   std::vector<Contact> contacts;
   Diagnostics diagnostics;
   void load(const std::string &path);

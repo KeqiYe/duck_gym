@@ -260,7 +260,7 @@ def main():
             for name in (
                 "scripts/evaluate_cuda.py",
                 "python/duck_gym/tensor_env.py",
-                "src/cuda/kernel.inl",
+                "src/cuda/kernel.cuh",
                 "src/cuda/model.hpp",
                 "src/cuda/cpu_bindings.cpp",
                 "src/cuda/extension.cu",

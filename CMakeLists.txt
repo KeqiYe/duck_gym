@@ -31,7 +31,11 @@ if(DUCK_BUILD_PYTHON)
   find_package(pybind11 CONFIG REQUIRED)
   find_package(Threads REQUIRED)
   set_target_properties(duck_cpu PROPERTIES POSITION_INDEPENDENT_CODE ON)
-  pybind11_add_module(_duck_reference src/cuda/cpu_bindings.cpp)
+  # Shared CPU/CUDA implementation headers are included by the C++ entry point.
+  # Keep them visible to build tools and IDEs without compiling them separately.
+  set(DUCK_SHARED_HEADERS src/cuda/kernel.cuh src/cuda/convex.cuh src/cuda/model.hpp)
+  set_source_files_properties(${DUCK_SHARED_HEADERS} PROPERTIES HEADER_FILE_ONLY TRUE)
+  pybind11_add_module(_duck_reference src/cuda/cpu_bindings.cpp ${DUCK_SHARED_HEADERS})
   target_link_libraries(_duck_reference PRIVATE duck_cpu Threads::Threads)
   target_compile_options(_duck_reference PRIVATE -Wno-narrowing -ffp-contract=off)
   set_target_properties(_duck_reference PROPERTIES LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/python")

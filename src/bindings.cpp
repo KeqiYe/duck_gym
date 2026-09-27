@@ -34,6 +34,9 @@ public:
         dt <= 0 || iterations < 1)
       throw std::invalid_argument("Invalid environment/thread count");
     prototype.load(path);
+    if (!prototype.collisionPairs.empty())
+      throw std::invalid_argument(
+          "Body contacts require the shared CpuBatch/CUDA solver");
     prototype.options.dt = dt;
     prototype.options.iterations = iterations;
     if (prototype.bodies.size() < 2 || prototype.bodies[1].mass <= 0)

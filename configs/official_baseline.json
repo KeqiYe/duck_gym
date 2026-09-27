@@ -1,0 +1,22 @@
+{
+  "status": "pinned_upstream_baseline",
+  "microduck_rl": {
+    "repository": "https://github.com/pollen-robotics/microduck_rl",
+    "commit": "1e79c29c97d8b38aee9eefde77a545860ba7658e",
+    "archive": "microduck_rl.tar.gz",
+    "license": "Apache-2.0"
+  },
+  "bam": {
+    "repository": "https://github.com/Rhoban/bam",
+    "commit": "62bd8ce12154340be97e06f7f41a0ca8f116d967",
+    "archive": "bam.tar.gz",
+    "license": "Apache-2.0"
+  },
+  "uv_version": "0.11.7",
+  "sha256": {
+    "bam.tar.gz": "71e3b7f3a791c9577b934cb13154509892341b0006414d922fca0ace53cb8371",
+    "microduck_rl.tar.gz": "a5d86592e4dd1adef91e9fc2dc2a9d99544cdeb0a9c11692197fd9c3859e0d47",
+    "requirements-official.txt": "1119b39bdb3123834394edadd23fb1dc5a0423bf55d7285d473a11f8314d7dab"
+  },
+  "dependencies": "Exported unchanged upstream uv.lock with uv export --frozen; BAM and project installed from exact archived source without dependency resolution."
+}

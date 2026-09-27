@@ -1,0 +1,8 @@
+{
+  "status": "experimental_curriculum_not_acceptance_thresholds",
+  "skill": "crouch",
+  "episode_seconds": 2.4,
+  "reference_times": [0, 0.25, 0.75, 1.2, 1.7, 2.4],
+  "reference_depths": [0, 0, 0.025, 0.025, 0, 0],
+  "residual_scale": 1.0
+}

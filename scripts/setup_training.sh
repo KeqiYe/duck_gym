@@ -9,9 +9,12 @@ cmake -S . -B build/cpu-release -DCMAKE_BUILD_TYPE=Release -DDUCK_BUILD_PYTHON=O
 cmake --build build/cpu-release --parallel
 .venv/bin/python scripts/prepare_standing.py
 .venv/bin/python scripts/prepare_gait.py
+.venv/bin/python scripts/prepare_motion.py build/models/motion
+.venv/bin/python scripts/prepare_aerial_reference.py build/models/motion
 ctest --test-dir build/cpu-release --output-on-failure
 .venv/bin/python tests/test_python.py
 .venv/bin/python tests/test_tensor_env.py
 .venv/bin/python tests/test_checkpoint.py
 .venv/bin/python tests/test_evaluation.py
+.venv/bin/python tests/test_motion.py
 .venv/bin/python -m pip check

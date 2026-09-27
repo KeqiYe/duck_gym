@@ -1,0 +1,5 @@
+# Isolated GPU benchmark overlay; does not replace training dependencies.
+mujoco==3.13.0
+mujoco-warp==3.13.0
+warp-lang==1.17.0
+numpy==2.3.2

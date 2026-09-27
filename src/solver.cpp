@@ -69,10 +69,10 @@ void Solver::load(const std::string &path) {
   if (!in)
     throw std::runtime_error("Cannot read model: " + path);
   std::string header;
-  int version, nbody, njoint, nshape;
+  int version = -1, nbody = -1, njoint = -1, nshape = -1;
   in >> header >> version >> nbody >> njoint >> nshape;
-  if (header != "DUCK_MODEL" || version != 1 || nbody < 1 || nbody > 10000 ||
-      njoint < 0 || nshape < 0)
+  if (header != "DUCK_MODEL" || (version != 1 && version != 2) || nbody < 1 ||
+      nbody > 10000 || njoint < 0 || nshape < 0)
     throw std::runtime_error("Invalid model header");
   options.gravity = readV(in);
   in >> options.ground;
@@ -80,6 +80,7 @@ void Solver::load(const std::string &path) {
   joints.assign(njoint, Joint{});
   shapes.assign(nshape, Shape{});
   contacts.clear();
+  collisionPairs.clear();
   adjacency.assign(nbody, {});
   for (auto &b : bodies) {
     in >> b.name >> b.mass;
@@ -112,7 +113,7 @@ void Solver::load(const std::string &path) {
     adjacency[j.b].push_back(id);
   }
   for (auto &s : shapes) {
-    int n;
+    int n = -1;
     in >> s.body >> s.type;
     s.center = readV(in);
     s.q = readQ(in);
@@ -123,6 +124,10 @@ void Solver::load(const std::string &path) {
       throw std::runtime_error("Invalid collision shape");
     for (int k = 0; k < n; ++k)
       s.vertices.push_back(readV(in));
+    if (version == 2)
+      in >> s.ground;
+    if (s.type == 3 && n < 4)
+      throw std::runtime_error("Convex mesh needs at least four vertices");
     if (s.type == 1) {
       for (int i = 0; i < 8; ++i)
         s.localPoints.push_back(s.center +
@@ -139,6 +144,24 @@ void Solver::load(const std::string &path) {
       s.boundingRadius = norm(s.center) + s.size.x;
     if (s.type == 2)
       s.boundingRadius = norm(s.center) + s.size.x + s.size.y;
+  }
+  if (version == 2) {
+    int count = -1;
+    in >> count;
+    if (count < 0 || count > 32)
+      throw std::runtime_error("Invalid body collision pair count");
+    for (int k = 0; k < count; ++k) {
+      CollisionPair p;
+      in >> p.a >> p.b >> p.friction;
+      if (p.a < 0 || p.a >= nshape || p.b <= p.a || p.b >= nshape ||
+          shapes[p.a].body == shapes[p.b].body || p.friction < 0 ||
+          !std::isfinite(p.friction))
+        throw std::runtime_error("Invalid body collision pair");
+      for (auto old : collisionPairs)
+        if (old.a == p.a && old.b == p.b)
+          throw std::runtime_error("Duplicate body collision pair");
+      collisionPairs.push_back(p);
+    }
   }
   if (!in)
     throw std::runtime_error("Truncated model");
@@ -200,6 +223,8 @@ void Solver::detectContacts() {
     cache[{c.shape, c.feature}] = c;
   for (int si = 0; si < (int)shapes.size(); ++si) {
     auto &s = shapes[si];
+    if (!s.ground)
+      continue;
     auto &b = bodies[s.body];
     if (b.mass == 0)
       continue;
@@ -288,6 +313,9 @@ void Solver::contactValues(const Contact &c, Vec3 &C,
   }
 }
 void Solver::step() {
+  if (!collisionPairs.empty())
+    throw std::runtime_error(
+        "Body contacts require the shared CpuBatch/CUDA solver");
   const double h = options.dt;
   if (!(h > 0) || options.iterations < 1 || options.alpha < 0 ||
       options.alpha >= 1 || options.gamma <= 0 || options.gamma >= 1)

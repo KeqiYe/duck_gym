@@ -1,0 +1,17 @@
+{
+  "status": "diagnostic_command_adapter_not_an_accepted_policy",
+  "velocity_tau": 0.5,
+  "kp": 0.5,
+  "ki": 0.5,
+  "integral_limit": 0.2,
+  "antiwindup_tau": 0.5,
+  "heading_kp": 2.0,
+  "heading_kd": 0.1,
+  "command_limits": [
+    0.4,
+    0.3,
+    1.0
+  ],
+  "scope": "Native checkpoint500 candidate: lower-gain outer feedback with world XY target acceleration limited to 0.05 m/s^2 for start and command changes; experimental command shaping, no physical state edits.",
+  "command_acceleration_limit": 0.05
+}

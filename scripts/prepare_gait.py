@@ -9,7 +9,16 @@ from prepare_standing import prepare
 from model_io import ROOT
 
 
-def prepare_gait(model_dir, samples=128, speed=0.05, period=0.8, lift=0.008, sway=0.015, roll=0.15):
+def prepare_gait(
+    model_dir,
+    samples=128,
+    speed=0.05,
+    period=0.8,
+    lift=0.008,
+    sway=0.015,
+    roll=0.15,
+    smooth_velocity=False,
+):
     model_dir = Path(model_dir)
     meta = json.loads((model_dir / "metadata.json").read_text())
     model = mujoco.MjModel.from_xml_path(str(model_dir / "visual.xml"))
@@ -69,6 +78,9 @@ def prepare_gait(model_dir, samples=128, speed=0.05, period=0.8, lift=0.008, swa
                     u = (t - stance) / (1 - stance)
                     smooth = u * u * (3 - 2 * u)
                     offset = period * stance * (smooth - 0.5)
+                    if smooth_velocity:
+                        # Match stance velocity at the swing endpoints.
+                        offset -= period * (1 - stance) * (2 * u**3 - 3 * u**2 + u)
                     z = lift * np.sin(np.pi * u) ** 2
                 desired[foot, :2] += command * offset
                 desired[foot, 2] += z
@@ -125,6 +137,7 @@ def prepare_gait(model_dir, samples=128, speed=0.05, period=0.8, lift=0.008, swa
         lift=lift,
         sway=sway,
         roll=roll,
+        smooth_velocity=smooth_velocity,
         max_foot_position_residual_m=max_error,
         max_joint_offset_rad=float(np.abs(table - np.asarray(meta["home"])).max()),
         method="Offline damped least-squares foot pose IK; joint targets only at runtime",

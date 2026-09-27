@@ -7,6 +7,7 @@ import json
 from pathlib import Path
 import shlex
 import subprocess
+import tarfile
 
 ROOT = Path(__file__).resolve().parents[2]
 HOSTS = [
@@ -17,11 +18,29 @@ HOSTS = [
 
 def main():
     p = argparse.ArgumentParser()
+    p.add_argument("--host", choices=["auto"] + [host for host, _ in HOSTS], default="auto",
+                   help="Default: preferred host then fallback; select a host explicitly for a requested GPU model")
     p.add_argument("--gpu", type=int, required=True)
     p.add_argument("--setup", action="store_true")
+    p.add_argument("--native-float-math", action="store_true", help="Experimental FP32 native math; independent accuracy validation required")
+    p.add_argument("--unroll-small-matrices", action="store_true", help="Experimental fixed-size matrix loop expansion; compare accuracy and register use")
+    p.add_argument("--python-env", default="venv", help="Workspace environment directory name")
+    p.add_argument("--build-config", default="cuda", help="Isolated build directory name")
+    p.add_argument(
+        "--allow-busy-gpu",
+        action="store_true",
+        help="Explicitly allow sharing a GPU with running compute processes",
+    )
     p.add_argument("command", nargs=argparse.REMAINDER)
     args = p.parse_args()
-    for host, workspace in HOSTS:
+    for name in (args.python_env, args.build_config):
+        if not name or any(
+            c not in "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_-"
+            for c in name
+        ):
+            p.error("Environment/build names must use letters, digits, underscore or hyphen")
+    selected_hosts = HOSTS if args.host == "auto" else [(host, workspace) for host, workspace in HOSTS if host == args.host]
+    for host, workspace in selected_hosts:
         check = subprocess.run(
             [
                 "ssh",
@@ -39,8 +58,22 @@ def main():
             break
         print(f"{host} unavailable: {check.stderr}", flush=True)
     else:
-        raise SystemExit("Neither configured host is reachable")
+        raise SystemExit("No selected host is reachable: " + ", ".join(host for host, _ in selected_hosts))
     print(check.stdout, flush=True)
+    occupied = subprocess.run(
+        [
+            "ssh",
+            host,
+            f"nvidia-smi -i {args.gpu} --query-compute-apps=pid,process_name --format=csv,noheader",
+        ],
+        check=True,
+        text=True,
+        capture_output=True,
+    ).stdout.strip()
+    if occupied and not args.allow_busy_gpu:
+        raise SystemExit(
+            f"GPU {args.gpu} is occupied; select a free GPU or explicitly use --allow-busy-gpu.\n{occupied}"
+        )
     run_id = datetime.now().strftime("gpu-%Y%m%d-%H%M%S-%f")
     local = ROOT / "runs" / run_id
     local.mkdir(parents=True)
@@ -54,13 +87,19 @@ def main():
     files = [f for f in files if f and (ROOT / f).is_file()]
     files += [
         str(p.relative_to(ROOT))
-        for p in (ROOT / "assets/microduck").rglob("*")
+        for folder in ("assets/microduck", "assets/upstream")
+        for p in (ROOT / folder).rglob("*")
         if p.is_file() and not p.name.startswith("._")
     ]
     manifest = dict(
         host=host,
+        host_selection=args.host,
         workspace=workspace,
         gpu=args.gpu,
+        python_environment=args.python_env,
+        build_configuration=args.build_config,
+        native_float_math=args.native_float_math,
+        unroll_small_matrices=args.unroll_small_matrices,
         command=args.command,
         source_commit=subprocess.check_output(
             ["git", "rev-parse", "HEAD"], cwd=ROOT, text=True
@@ -68,6 +107,16 @@ def main():
         sha256={f: hashlib.sha256((ROOT / f).read_bytes()).hexdigest() for f in files},
     )
     (local / "manifest.json").write_text(json.dumps(manifest, indent=2) + "\n")
+    # Hashes alone cannot reconstruct uncommitted/untracked experiments. Keep
+    # the actual source/config text; fixed-version assets remain hash-addressed.
+    snapshot = local / "source_snapshot.tar.gz"
+    with tarfile.open(snapshot, "w:gz") as archive:
+        for name in files:
+            if name.startswith(("assets/microduck/", "assets/upstream/")):
+                continue
+            if hashlib.sha256((ROOT / name).read_bytes()).hexdigest() != manifest["sha256"][name]:
+                raise RuntimeError(f"Source changed during snapshot: {name}; retry synchronization")
+            archive.add(ROOT / name, arcname=name, recursive=False)
     subprocess.run(
         [
             "ssh",
@@ -96,7 +145,7 @@ def main():
     )
     remote_run = workspace + "/runs/" + run_id
     subprocess.run(
-        ["scp", str(local / "manifest.json"), host + ":" + remote_run + "/manifest.json"],
+        ["scp", str(local / "manifest.json"), str(snapshot), host + ":" + remote_run + "/"],
         check=True,
     )
     verify = (
@@ -117,10 +166,12 @@ set -euo pipefail
 cd {shlex.quote(workspace+'/source')}
 export CUDA_VISIBLE_DEVICES={args.gpu}
 export CUDA_HOME=/usr/local/cuda-12.8
-export PATH="{workspace}/venv/bin:$CUDA_HOME/bin:$PATH"
-export DUCK_CUDA_BUILD={shlex.quote(workspace+'/build/cuda')}
+export PATH="{workspace}/{args.python_env}/bin:{workspace}/venv/bin:$CUDA_HOME/bin:$PATH"
+export DUCK_CUDA_BUILD={shlex.quote(workspace+'/build/'+args.build_config)}
 export TORCH_CUDA_ARCH_LIST="$(nvidia-smi -i {args.gpu} --query-gpu=compute_cap --format=csv,noheader)"
 export MAX_JOBS=2
+export DUCK_NATIVE_FLOAT_MATH={int(args.native_float_math)}
+export DUCK_UNROLL_SMALL_MATRICES={int(args.unroll_small_matrices)}
 export PYTHONUNBUFFERED=1
 export DUCK_RUN_DIR={shlex.quote(remote_run)}
 trap 'rc=$?; echo "$rc" > "$DUCK_RUN_DIR/exit_code"' EXIT
@@ -128,11 +179,22 @@ hostname
 uname -a
 nvidia-smi
 "$CUDA_HOME/bin/nvcc" --version
+"${{CXX:-c++}}" --version
+python --version
+if command -v ninja > /dev/null 2>&1; then ninja --version; fi
 """
     if args.setup:
         script += f"bash scripts/remote/provision.sh {shlex.quote(workspace)}\n"
     else:
-        script += 'python -m pip check\npython -m pip freeze > "$DUCK_RUN_DIR/dependencies.txt"\npython scripts/build_cuda.py\n'
+        script += f"""if python -m pip --version >/dev/null 2>&1; then
+  python -m pip check
+  python -m pip freeze > "$DUCK_RUN_DIR/dependencies.txt"
+else
+  "{workspace}/tools/bin/uv" pip check --python "{workspace}/{args.python_env}/bin/python"
+  "{workspace}/tools/bin/uv" pip freeze --python "{workspace}/{args.python_env}/bin/python" > "$DUCK_RUN_DIR/dependencies.txt"
+fi
+python scripts/build_cuda.py
+"""
         script += shlex.join(cmd) + "\n"
     (local / "run.sh").write_text(script)
     subprocess.run(["scp", str(local / "run.sh"), host + ":" + remote_run + "/run.sh"], check=True)

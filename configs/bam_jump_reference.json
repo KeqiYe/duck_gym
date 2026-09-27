@@ -1,0 +1,16 @@
+{
+  "status": "experimental_reference_jump_not_flip",
+  "skill": "jump",
+  "episode_seconds": 3.0,
+  "reference_trajectory": "launch_reference.npz",
+  "residual_scale": 0.1,
+  "initial_std": 0.2,
+  "launch_window": [
+    0.9,
+    1.1
+  ],
+  "launch_weight": 4.0,
+  "launch_pose_scale": 0.0,
+  "joint_velocity_weight": 0.001,
+  "physics_dt": 0.0025
+}

@@ -1,0 +1,67 @@
+{
+  "status": "head_stability_experiment_not_accepted",
+  "commands": [
+    [
+      0.05,
+      0.0,
+      0.0
+    ],
+    [
+      -0.05,
+      0.0,
+      0.0
+    ],
+    [
+      0.0,
+      0.05,
+      0.0
+    ],
+    [
+      0.0,
+      -0.05,
+      0.0
+    ],
+    [
+      0.0,
+      0.0,
+      0.0
+    ]
+  ],
+  "command_resample_seconds": 5.0,
+  "episode_seconds": 20.0,
+  "reset_joint_noise": 0.01,
+  "reset_tilt_noise": 0.01,
+  "source_iteration": 500,
+  "solver_iterations": 200,
+  "fp64": false,
+  "learning_rate": 0.0003,
+  "entropy_coef": 0.005,
+  "initial_action_std": 0.15,
+  "save_interval": 50,
+  "differences_from_upstream": [
+    "Native AVBD with nominal BAM, original floor masks and four convex self-contact pairs; no physical domain randomization",
+    "Five equally sampled commands: four target directions and standing; neutral head/body commands",
+    "All original instantaneous reward equations retain upstream variances; add a 0.5 s world-frame velocity EMA, expose its local-frame state to critic, and reward mean horizontal command tracking (variance 0.0025, weight 4)",
+    "Small explicit initial pose perturbations; fixed 20 ms actuator and joint-velocity observation delay, no sensor noise",
+    "Resume native actor, critic, optimizer, normalization, exploration standard deviation and reward curriculum counters; reset simulated episodes",
+    "Native contact timing/force and finite-iteration dynamics are not full upstream parity",
+    "FP32 training candidate; independent CPU FP64 rollout and full-asset collision/video audit required",
+    "Hold initial heading through a velocity-command controller: yaw command = clamp(0.5 * wrapped heading error, -1, 1); no direct pose or force edits",
+    "Self-collision cost uses maximum active pair count over four physics substeps; weight -5 (upstream -1), head pose tracking weight 4 (upstream 2) to discourage colliding feet and excessive neutral-head motion",
+    "Instantaneous head joint squared position and velocity costs; no physical joints locked and no state edits. Resume checkpoint 799; independent full walking audit required."
+  ],
+  "horizontal_velocity_variance": 0.1,
+  "vertical_velocity_variance": 0.1,
+  "mean_velocity_tau": 0.5,
+  "mean_velocity_variance": 0.0025,
+  "mean_velocity_weight": 4.0,
+  "heading_hold": true,
+  "reward_weight_overrides": {
+    "self_collisions": -5.0,
+    "head_pose_tracking": 4.0
+  },
+  "head_stability": {
+    "position_weight": 8.0,
+    "velocity_weight": 0.04
+  }
+}

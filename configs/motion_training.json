@@ -1,0 +1,44 @@
+{
+  "status": "experimental_training_hyperparameters_not_acceptance_thresholds",
+  "walking": {
+    "period": 0.8,
+    "stance_fraction": 0.6,
+    "swing_height_m": 0.012,
+    "tracking_sigma_mps": 0.05,
+    "tracking_weight": 4.0,
+    "head_pose_weight": 4.0,
+    "head_pose_l2_weight": 4.0,
+    "leg_pose_weight": 0.5,
+    "upright_weight": 2.0,
+    "heading_weight": 2.0,
+    "swing_weight": 2.0,
+    "stance_weight": 1.0,
+    "slip_weight": 1.0,
+    "action_rate_weight": 0.1,
+    "joint_velocity_weight": 0.002,
+    "velocity_filter_seconds": 0.15,
+    "head_pose_sigma_rad": 0.25,
+    "head_bias_seconds": 0
+  },
+  "flip": {
+    "direction": "forward",
+    "episode_seconds": 4.0,
+    "rotation_target_rad": 6.283185307179586,
+    "landing_angle_scale_rad": 0.3,
+    "jump_height_scale_m": 0.06,
+    "landing_height_scale_m": 0.03,
+    "contact_force_epsilon_n": 0.0001,
+    "aerial_detector_version": 3,
+    "reference": "crouch_feedforward"
+  },
+  "walking_bias_recipe": {
+    "head_pose_sigma_rad": 0.5,
+    "head_bias_seconds": 1.0,
+    "head_pose_weight": 2.0,
+    "head_pose_l2_weight": 3.0,
+    "reference": "ik",
+    "swing_sigma_m": 0.008,
+    "tracking_weight": 8.0,
+    "leg_pose_weight": 0.25
+  }
+}

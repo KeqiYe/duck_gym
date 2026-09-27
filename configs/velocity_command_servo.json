@@ -1,0 +1,12 @@
+{
+  "status": "diagnostic_command_adapter_not_an_accepted_policy",
+  "velocity_tau": 0.5,
+  "kp": 2.0,
+  "ki": 1.0,
+  "integral_limit": 0.2,
+  "antiwindup_tau": 0.5,
+  "heading_kp": 4.0,
+  "heading_kd": 0.1,
+  "command_limits": [0.4, 0.3, 1.0],
+  "scope": "Outer PI velocity and P/D heading feedback changes only PPO command inputs; gains are experimental controller settings, command limits match the pinned upstream task"
+}
