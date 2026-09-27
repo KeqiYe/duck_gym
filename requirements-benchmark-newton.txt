@@ -5,3 +5,5 @@ mujoco-warp==3.12.0
 warp-lang==1.17.0
 numpy==2.3.2
 trimesh==4.7.4
+# Geometry import audit uses scipy.spatial.cKDTree.
+scipy==1.16.2

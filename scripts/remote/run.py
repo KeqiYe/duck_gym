@@ -21,6 +21,8 @@ def main():
     p.add_argument("--host", choices=["auto"] + [host for host, _ in HOSTS], default="auto",
                    help="Default: preferred host then fallback; select a host explicitly for a requested GPU model")
     p.add_argument("--gpu", type=int, required=True)
+    p.add_argument("--cuda-home", default="/usr/local/cuda-12.8",
+                   help="CUDA Toolkit root on the selected host (must contain bin/nvcc)")
     p.add_argument("--setup", action="store_true")
     p.add_argument("--native-float-math", action="store_true", help="Experimental FP32 native math; independent accuracy validation required")
     p.add_argument("--unroll-small-matrices", action="store_true", help="Experimental fixed-size matrix loop expansion; compare accuracy and register use")
@@ -96,6 +98,7 @@ def main():
         host_selection=args.host,
         workspace=workspace,
         gpu=args.gpu,
+        cuda_home=args.cuda_home,
         python_environment=args.python_env,
         build_configuration=args.build_config,
         native_float_math=args.native_float_math,
@@ -165,7 +168,7 @@ def main():
 set -euo pipefail
 cd {shlex.quote(workspace+'/source')}
 export CUDA_VISIBLE_DEVICES={args.gpu}
-export CUDA_HOME=/usr/local/cuda-12.8
+export CUDA_HOME={shlex.quote(args.cuda_home)}
 export PATH="{workspace}/{args.python_env}/bin:{workspace}/venv/bin:$CUDA_HOME/bin:$PATH"
 export DUCK_CUDA_BUILD={shlex.quote(workspace+'/build/'+args.build_config)}
 export TORCH_CUDA_ARCH_LIST="$(nvidia-smi -i {args.gpu} --query-gpu=compute_cap --format=csv,noheader)"
@@ -193,6 +196,7 @@ else
   "{workspace}/tools/bin/uv" pip check --python "{workspace}/{args.python_env}/bin/python"
   "{workspace}/tools/bin/uv" pip freeze --python "{workspace}/{args.python_env}/bin/python" > "$DUCK_RUN_DIR/dependencies.txt"
 fi
+python -c 'import torch; from torch.utils.cpp_extension import CUDA_HOME; print("PyTorch", torch.__version__, "CUDA runtime", torch.version.cuda, "CUDA_HOME", CUDA_HOME)'
 python scripts/build_cuda.py
 """
         script += shlex.join(cmd) + "\n"
