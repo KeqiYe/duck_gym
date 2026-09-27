@@ -57,10 +57,15 @@ def main():
     with mujoco.Renderer(m, height=720, width=960) as renderer, imageio.get_writer(
         out / a.output_name, fps=a.fps, codec="libx264", quality=8
     ) as writer:
-        indices = np.minimum(
-            np.rint(np.arange(0, (len(states) - 1) * dt + 1e-9, a.playback_speed / a.fps) / dt).astype(int),
-            len(states) - 1,
+        # The final state marks the end of the clip, not an extra video frame.
+        # Sample [0, duration): 10 seconds at 25 fps produces exactly 250 frames.
+        # Preserve the existing single-snapshot preview behavior.
+        sample_times = (
+            np.arange(0, (len(states) - 1) * dt, a.playback_speed / a.fps)
+            if len(states) > 1
+            else np.zeros(1)
         )
+        indices = np.minimum(np.rint(sample_times / dt).astype(int), len(states) - 1)
         for index in indices:
             apply_body_poses(m, d, states[index])
             if a.follow:

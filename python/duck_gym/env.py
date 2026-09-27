@@ -2,7 +2,6 @@ import json
 from pathlib import Path
 import numpy as np
 import torch
-from _duck_cpu import CpuBatch
 
 
 def quat_mul(a, b):
@@ -41,6 +40,8 @@ class StandingEnv:
         action_scale=0.15,
         auto_reset=True,
     ):
+        from _duck_cpu import CpuBatch
+
         self.model_dir = Path(model_dir)
         self.meta = json.loads((self.model_dir / "metadata.json").read_text())
         if (
